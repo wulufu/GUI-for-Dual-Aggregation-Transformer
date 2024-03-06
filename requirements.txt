@@ -9,8 +9,12 @@ requests
 scikit-image
 scipy
 tb-nightly
-torch==1.8.0
-torchvision
+#torch==1.8.0
+#torchvision
+pytorch==1.8.0
+torchvision==0.9.0
+torchaudio==0.8.0
+cudatoolkit=10.2
 tqdm
 yapf
 timm 
