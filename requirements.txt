@@ -11,10 +11,9 @@ scipy
 tb-nightly
 #torch==1.8.0
 #torchvision
-pytorch==1.8.0
-torchvision==0.9.0
+torch==1.8.0+cu111
+torchvision==0.9.0+cu111
 torchaudio==0.8.0
-cudatoolkit=10.2
 tqdm
 yapf
 timm 
