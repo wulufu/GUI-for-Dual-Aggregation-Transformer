@@ -1,0 +1,12 @@
+{
+    "manifest_version": 3,
+    "name": "Satellite Image Enhancer",
+    "version": "1.0.0",
+    "action": {
+        "default_popup": "layout.html"
+    },
+    "permissions": [
+        "storage",
+        "tabs"
+    ]
+}
