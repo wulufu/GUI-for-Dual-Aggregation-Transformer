@@ -9,8 +9,9 @@ requests
 scikit-image
 scipy
 tb-nightly
-#torch==1.8.0
-#torchvision
+https://download.pytorch.org/whl/cu111/torch-1.8.0%2Bcu111-cp38-cp38-win_amd64.whl
+https://download.pytorch.org/whl/cu111/torchvision-0.9.0%2Bcu111-cp38-cp38-win_amd64.whl
+torchaudio==0.8.0
 tqdm
 yapf
 timm 
