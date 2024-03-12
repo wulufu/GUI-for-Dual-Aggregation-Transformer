@@ -1,5 +1,6 @@
 import logging
 import torch
+import eel
 from os import path as osp
 
 from basicsr.data import build_dataloader, build_dataset
@@ -7,10 +8,20 @@ from basicsr.models import build_model
 from basicsr.utils import get_root_logger, get_time_str, make_exp_dirs
 from basicsr.utils.options import dict2str, parse_options
 
+if __name__ == '__main__':
+    eel.init("web")
+    eel.start("layout.html")
 
-def test_pipeline(root_path):
+
+@eel.expose
+def execute_enhance(enhance_level):
+    root_path = osp.abspath(osp.join(__file__, osp.pardir, osp.pardir))
+    test_pipeline(root_path, enhance_level)
+
+
+def test_pipeline(root_path, enhance_level):
     # parse options, set distributed setting, set ramdom seed
-    opt, _ = parse_options(root_path, is_train=False)
+    opt, _ = parse_options(root_path, enhance_level, is_train=False)
 
     torch.backends.cudnn.benchmark = True
     # torch.backends.cudnn.deterministic = True
@@ -37,8 +48,3 @@ def test_pipeline(root_path):
         test_set_name = test_loader.dataset.opt['name']
         logger.info(f'Testing {test_set_name}...')
         model.validation(test_loader, current_iter=opt['name'], tb_logger=None, save_img=opt['val']['save_img'])
-
-
-if __name__ == '__main__':
-    root_path = osp.abspath(osp.join(__file__, osp.pardir, osp.pardir))
-    test_pipeline(root_path)

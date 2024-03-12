@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <title>Satellite Image Enhancer</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div id="googleMaps">
+            <iframe
+                id="embeddedMap" style="border: 0" allowfullscreen
+                referrerpolicy="no-referrer-when-downgrade"
+                src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAz7DIMRFMREUS1oea5JnwxDck_veuDqWI
+                    &q=University+at+Albany
+                    &maptype=satellite">
+            </iframe>
+        </div>
+        <div id="buttons">
+            <div id="imageButtons">
+                <button id="downloadButton" class="primaryButtons">Download</button>
+                <button id="previewButton" class="primaryButtons">Preview</button>
+            </div>
+            <div id="enhanceButtons">
+                <input type="radio" name="enhanceLevel" id="radioTwo" hidden="true">
+                <button id="enhanceX2" class="radioButtons">x2</button>
+
+                <input type="radio" name="enhanceLevel" id="radioThree" hidden="true">
+                <button id="enhanceX3" class="radioButtons">x3</button>
+
+                <input type="radio" name="enhanceLevel" id="radioFour" hidden="true">
+                <button id="enhanceX4" class="radioButtons">x4</button>
+            </div>
+        </div>
+        <script type="text/javascript" src="../eel.js"></script>
+        <script type="text/javascript" src="script.js"></script>
+    </body>
+</html>
