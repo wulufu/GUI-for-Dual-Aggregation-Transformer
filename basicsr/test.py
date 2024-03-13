@@ -1,6 +1,6 @@
+import eel
 import logging
 import torch
-import eel
 from os import path as osp
 
 from basicsr.data import build_dataloader, build_dataset
@@ -10,7 +10,7 @@ from basicsr.utils.options import dict2str, parse_options
 
 if __name__ == '__main__':
     eel.init("web")
-    eel.start("layout.html")
+    eel.start("layout.html", mode="chrome-app")
 
 
 @eel.expose
