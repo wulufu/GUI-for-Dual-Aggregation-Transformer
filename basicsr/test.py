@@ -1,4 +1,3 @@
-import eel
 import logging
 import torch
 from os import path as osp
@@ -8,13 +7,8 @@ from basicsr.models import build_model
 from basicsr.utils import get_root_logger, get_time_str, make_exp_dirs
 from basicsr.utils.options import dict2str, parse_options
 
-if __name__ == '__main__':
-    eel.init("web")
-    eel.start("layout.html", mode="chrome-app")
 
-
-@eel.expose
-def execute_enhance(enhance_level):
+def execute(enhance_level):
     root_path = osp.abspath(osp.join(__file__, osp.pardir, osp.pardir))
     test_pipeline(root_path, enhance_level)
 
