@@ -6,10 +6,11 @@ async function initMap() {
   map = new Map(document.getElementById("map"), {
     center: { lat: -34.397, lng: 150.644 },
     zoom: 8,
-    mapTypeId: 'satellite'
+    mapTypeId: "satellite",
+    tilt: 0,
+    disableDefaultUI: true,
+    keyboardShortcuts: false
   });
-
-  map.setTilt(0);
 }
 
 initMap();
