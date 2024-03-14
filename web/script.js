@@ -1,6 +1,18 @@
-const map = document.getElementById("embeddedMap");
-map.style.height = (window.screen.availHeight-window.screen.availHeight * 0.10).toString();
-map.style.width = (window.screen.availWidth-window.screen.availWidth * 0.20).toString();
+let map;
+
+async function initMap() {
+  const { Map } = await google.maps.importLibrary("maps");
+
+  map = new Map(document.getElementById("map"), {
+    center: { lat: -34.397, lng: 150.644 },
+    zoom: 8,
+    mapTypeId: 'satellite'
+  });
+
+  map.setTilt(0);
+}
+
+initMap();
 
 const enhanceX2 = document.getElementById("enhanceX2");
 const enhanceX3 = document.getElementById("enhanceX3");
@@ -14,31 +26,27 @@ const radioFour = document.getElementById("radioFour");
 document.getElementById("downloadButton").addEventListener("click",
     function() {
         let option;
-        if(radioTwo.checked) {
+
+        if (radioTwo.checked) {
             option = "options/Test/test_single_x2.yml";
-        }
-        else if(radioThree.checked) {
+        } else if (radioThree.checked) {
             option = "options/Test/test_single_x3.yml";
-        }
-        else if(radioFour.checked) {
+        } else if (radioFour.checked) {
             option = "options/Test/test_single_x4.yml";
-        }
-        else {
+        } else {
             console.log("Error calling enhance: No enhance option selected.")
             return;
         }
+
         console.log(option);
         eel.execute_enhance(option);
-    });
-document.getElementById("previewButton").addEventListener("click", print);
+    }
+);
 
+document.getElementById("previewButton").addEventListener("click", print);
 enhanceX2.addEventListener("click", function() { setRadioButton(radioTwo, 2); });
 enhanceX3.addEventListener("click", function() { setRadioButton(radioThree, 3); });
 enhanceX4.addEventListener("click", function() { setRadioButton(radioFour, 4); });
-
-function print() {
-    console.log("hello world");
-}
 
 function setRadioButton(radioInput, buttonInput) {
     radioInput.checked = true;
@@ -63,6 +71,4 @@ function setRadioButton(radioInput, buttonInput) {
             // set value of the default enhance level
         break;
     }
-
 }
-

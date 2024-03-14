@@ -7,7 +7,7 @@ html, body {
     display: flex;
 }
 
-#googleMaps {
+#map {
     width: 85%;
 
     padding: 10px;
