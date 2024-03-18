@@ -6,14 +6,16 @@ const radioThree = document.getElementById("radioThree");
 const radioFour = document.getElementById("radioFour");
 const previewButton = document.getElementById("previewButton");
 const downloadButton = document.getElementById("downloadButton");
-const map = initMap();
+let map;
 
-downloadButton.addEventListener("click", enhanceImage);
+initMap();
+downloadButton.addEventListener("click", downloadImage);
+previewButton.addEventListener("click", previewImage);
 enhanceX2.addEventListener("click", () => setRadioButton(radioTwo, 2));
 enhanceX3.addEventListener("click", () => setRadioButton(radioThree, 3));
 enhanceX4.addEventListener("click", () => setRadioButton(radioFour, 4));
 
-function enhanceImage() {
+function downloadImage() {
     let option;
 
     if (radioTwo.checked) {
@@ -31,10 +33,16 @@ function enhanceImage() {
     eel.execute_enhance(option);
 }
 
-async function initMap() {
-    const { Map } = await google.maps.importLibrary("maps");
+function previewImage() {
+    center = map.getCenter();
+    zoom = map.getZoom();
+    eel.getImage(center, zoom)
+}
 
-    return new Map(document.getElementById("map"), {
+async function initMap() {
+    const {Map} = await google.maps.importLibrary("maps");
+
+    map = new Map(document.getElementById("map"), {
         center: { lat: -34.397, lng: 150.644 },
         zoom: 8,
         mapTypeId: "satellite",
