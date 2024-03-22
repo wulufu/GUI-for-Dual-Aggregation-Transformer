@@ -16,7 +16,7 @@ html, body {
     width: 100%;
 }
 
-#buttons {
+#buttonPanel {
     padding: 8px;
     background-color: #1d262c;
     display: flex;
@@ -26,13 +26,13 @@ html, body {
     justify-content: center;
     gap: 12px;
 }
-    
-.primaryButtons {
+
+.primaryButton {
     width: 150px;
     height: 75px;
 
     color: wheat;
-    background-color: #141e24;
+    background-color: rgb(102, 165, 9);
     cursor: pointer;
 
     font-size: 1.5em;
@@ -41,11 +41,7 @@ html, body {
     flex-shrink: 0;
 }
 
-#downloadButton {
-    background-color: rgb(102, 165, 9);
-}
-
-.radioButtons {
+.radioButton {
     height: 125px;
     width: 125px;
 
@@ -62,6 +58,6 @@ html, body {
     flex-shrink: 0;
 }
 
-.radioButtons:active {
+.radioButton:active {
     background-color: #213039;
 }
