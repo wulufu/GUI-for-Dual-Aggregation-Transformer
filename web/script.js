@@ -1,28 +1,22 @@
-const radioButtons = document.querySelectorAll(".radioButton");
-let selectedButton = radioButtons[0];
-
-selectedButton.style.border = "15px inset orange";
-radioButtons.forEach(button => {
-    button.addEventListener("click", () => {
-        selectedButton.style.border = "15px outset black";
-        button.style.border = "15px inset orange";
-        selectedButton = button;
-    });
-});
-
-const enhanceButton = document.getElementById("enhanceButton");
-
-enhanceButton.addEventListener("click", () => {
-    center = map.getCenter();
-    zoom = map.getZoom();
-    eel.getImage(center, zoom);
-
-    enhanceLevel = selectedButton.getAttribute("id")
-    eel.execute_enhance(`options/Test/test_single_${enhanceLevel}.yml`);
-});
-
 let map;
+let selectedButton;
+
+initEnhanceButton();
+initRadioButtons();
 initMap();
+
+function initEnhanceButton() {
+    const enhanceButton = document.getElementById("enhanceButton");
+
+    enhanceButton.addEventListener("click", () => {
+        center = map.getCenter();
+        zoom = map.getZoom();
+        eel.getImage(center, zoom);
+
+        enhanceLevel = selectedButton.getAttribute("id")
+        eel.execute_enhance(`options/Test/test_single_${enhanceLevel}.yml`);
+    });
+}
 
 async function initMap() {
     const {Map} = await google.maps.importLibrary("maps");
@@ -73,5 +67,19 @@ async function initMap() {
         });
     
         map.fitBounds(bounds);
+    });
+}
+
+function initRadioButtons() {
+    const radioButtons = document.querySelectorAll(".radioButton");
+
+    selectedButton = radioButtons[0];
+    selectedButton.style.border = "15px inset orange";
+    radioButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            selectedButton.style.border = "15px outset black";
+            button.style.border = "15px inset orange";
+            selectedButton = button;
+        });
     });
 }
