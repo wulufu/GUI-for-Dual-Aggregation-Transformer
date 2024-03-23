@@ -1,22 +1,31 @@
-let map;
-let selectedButton;
+const mapsDialog = document.getElementById("mapsDialog");
+const enhancingDialog = document.getElementById("enhancingDialog");
+const successDialog = document.getElementById("successDialog");
 
-initEnhanceButton();
-initRadioButtons();
-initMap();
+const okButton = document.getElementById("okButton");
+okButton.addEventListener("click", () => {
+    successDialog.close();
+});
 
-function initEnhanceButton() {
-    const enhanceButton = document.getElementById("enhanceButton");
+const enhanceButton = document.getElementById("enhanceButton");
+enhanceButton.addEventListener("click", () => {
+    mapsDialog.showModal();
+    eel.getImage(map.getCenter(), map.getZoom());
+});
 
-    enhanceButton.addEventListener("click", () => {
-        center = map.getCenter();
-        zoom = map.getZoom();
-        eel.getImage(center, zoom);
-
-        enhanceLevel = selectedButton.getAttribute("id")
-        eel.execute_enhance(`options/Test/test_single_${enhanceLevel}.yml`);
+const radioButtons = document.querySelectorAll(".radioButton");
+let selectedButton = radioButtons[0];
+selectedButton.style.border = "15px inset orange";
+radioButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        selectedButton.style.border = "15px outset black";
+        button.style.border = "15px inset orange";
+        selectedButton = button;
     });
-}
+});
+
+let map;
+initMap();
 
 async function initMap() {
     const {Map} = await google.maps.importLibrary("maps");
@@ -70,16 +79,16 @@ async function initMap() {
     });
 }
 
-function initRadioButtons() {
-    const radioButtons = document.querySelectorAll(".radioButton");
+eel.expose(enhanceImage);
+function enhanceImage() {
+    mapsDialog.close();
+    enhancingDialog.showModal();
+    const enhanceLevel = selectedButton.getAttribute("id");
+    eel.execute_enhance(`options/Test/test_single_${enhanceLevel}.yml`);
+}
 
-    selectedButton = radioButtons[0];
-    selectedButton.style.border = "15px inset orange";
-    radioButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            selectedButton.style.border = "15px outset black";
-            button.style.border = "15px inset orange";
-            selectedButton = button;
-        });
-    });
+eel.expose(finishEnhance)
+function finishEnhance() {
+    enhancingDialog.close();
+    successDialog.showModal();
 }

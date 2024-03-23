@@ -11,6 +11,7 @@ API_KEY = "AIzaSyAz7DIMRFMREUS1oea5JnwxDck_veuDqWI"
 @eel.expose
 def execute_enhance(enhance_level):
     subprocess.run(["python", "basicsr/test.py", "-opt", enhance_level])
+    eel.finishEnhance()
 
 
 @eel.expose
@@ -22,6 +23,8 @@ def getImage(center, zoom, size=(640, 640), scale=2):
         for chunk in map:
             if chunk:
                 file.write(chunk)
+
+    eel.enhanceImage()
 
 
 if __name__ == '__main__':
