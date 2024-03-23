@@ -11,6 +11,8 @@ scipy
 tb-nightly
 tqdm
 yapf
-timm 
+timm
 einops
 h5py
+eel
+googlemaps
