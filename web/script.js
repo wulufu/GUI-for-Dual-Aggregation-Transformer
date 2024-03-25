@@ -38,6 +38,7 @@ async function initMap() {
         zoom: 15,
         mapTypeId: "satellite",
         tilt: 0,
+        minZoom: 3,
         mapTypeControl: false,
         streetViewControl: false,
         keyboardShortcuts: false
@@ -54,7 +55,7 @@ async function initMap() {
     searchBox.addListener("places_changed", () => {
         const places = searchBox.getPlaces();
 
-        if (places.length == 0) {
+        if (places.length === 0) {
             return;
         }
 

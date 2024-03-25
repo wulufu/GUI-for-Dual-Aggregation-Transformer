@@ -2,19 +2,46 @@ html, body {
     height: calc(100% - 8px);
     width: 100%;
     
-    background-color: #141e24;
+    background-color: #1d262c;
 
     display: flex;
 }
 
-#searchBox {
-    margin: 8px;
+#map {
+    height: 99%;
+    width: 98%;
+
+    border: 2px solid greenyellow;
+    border-radius: 5px;
 }
 
-#map {
-    height: 100%;
-    width: 100%;
+    #searchBox {
+        margin: 8px;
+    }
+
+dialog {
+    color: greenyellow;
+    background-color: #213039;
+    border-radius: 10px;
+
+    font-size: x-large;
 }
+
+    ::backdrop {
+        background-color: #1d262c;
+        opacity: 0.75;
+    }
+
+    #okButton {
+        color: greenyellow;
+        background-color: #1d262c;
+        border: 2px solid greenyellow;
+        border-radius: 15%;
+
+        font-size: large;
+
+        cursor: pointer;
+    }
 
 #buttonPanel {
     padding: 8px;
@@ -27,37 +54,38 @@ html, body {
     gap: 12px;
 }
 
-.primaryButton {
-    width: 150px;
-    height: 75px;
+    .primaryButton {
+        width: 150px;
+        height: 75px;
 
-    color: wheat;
-    background-color: rgb(102, 165, 9);
-    cursor: pointer;
+        color: wheat;
+        background-color: rgb(102, 165, 9);
+        border-radius: 5px;
+        cursor: pointer;
 
-    font-size: 1.5em;
-    font-weight: bold;
-    border-width: 7px;
-    flex-shrink: 0;
-}
+        font-size: 1.5em;
+        font-weight: bold;
+        border-width: 7px;
+        flex-shrink: 0;
+    }
 
-.radioButton {
-    height: 125px;
-    width: 125px;
+    .radioButton {
+        height: 125px;
+        width: 125px;
 
-    color: wheat;
-    background-color: #141e24;
-    cursor: pointer;
+        color: wheat;
+        background-color: #141e24;
+        cursor: pointer;
 
-    border: 15px outset black;
-    border-radius: 50%;
-    font-size: 3em;
-    font-weight: bold;
+        border: 15px outset black;
+        border-radius: 50%;
+        font-size: 3em;
+        font-weight: bold;
 
-    padding-left: 8px;
-    flex-shrink: 0;
-}
+        padding-left: 8px;
+        flex-shrink: 0;
+    }
 
-.radioButton:active {
-    background-color: #213039;
-}
+        .radioButton:active {
+            background-color: #213039;
+        }
