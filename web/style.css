@@ -27,7 +27,7 @@ dialog {
     font-size: x-large;
 }
 
-    ::backdrop {
+    dialog::backdrop {
         background-color: #1d262c;
         opacity: 0.75;
     }
@@ -43,7 +43,7 @@ dialog {
         cursor: pointer;
     }
 
-#buttonPanel {
+#buttonGroup {
     padding: 8px;
     background-color: #1d262c;
     display: flex;
@@ -54,7 +54,7 @@ dialog {
     gap: 12px;
 }
 
-    .primaryButton {
+    #enhanceButton {
         width: 150px;
         height: 75px;
 
@@ -63,7 +63,7 @@ dialog {
         border-radius: 5px;
         cursor: pointer;
 
-        font-size: 1.5em;
+        font-size: x-large;
         font-weight: bold;
         border-width: 7px;
         flex-shrink: 0;
@@ -79,7 +79,7 @@ dialog {
 
         border: 15px outset black;
         border-radius: 50%;
-        font-size: 3em;
+        font-size: xx-large;
         font-weight: bold;
 
         padding-left: 8px;
