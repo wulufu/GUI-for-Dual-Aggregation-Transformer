@@ -17,6 +17,7 @@ html, body {
 
     #searchBox {
         margin: 8px;
+        position: absolute; /* Fixes search box being too big on page load */
     }
 
 dialog {
