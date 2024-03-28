@@ -18,6 +18,17 @@ html, body {
     #searchBox {
         margin: 8px;
         position: absolute; /* Fixes search box being too big on page load */
+
+        background-color: #1d262c;
+        color: white;
+    }
+
+    #map button {
+        background-color: #1d262c !important;
+    }
+
+    .gm-style { /* Changes the background for the grid lines and the div before the map loads */
+        background-color: #1d262c;
     }
 
 dialog {
