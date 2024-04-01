@@ -98,6 +98,10 @@ dialog {
         flex-shrink: 0;
     }
 
+        .radioButton.selected {
+            border: 15px inset orange;
+        }
+
         .radioButton:active {
             background-color: #213039;
         }

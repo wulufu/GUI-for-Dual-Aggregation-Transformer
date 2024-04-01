@@ -14,13 +14,14 @@ enhanceButton.addEventListener("click", () => {
 });
 
 const radioButtons = document.querySelectorAll(".radioButton");
-let selectedButton = radioButtons[0];
-selectedButton.style.border = "15px inset orange";
-radioButtons.forEach(button => {
-    button.addEventListener("click", () => {
-        selectedButton.style.border = "15px outset black";
-        button.style.border = "15px inset orange";
-        selectedButton = button;
+let selectedRadioButton = document.querySelector(".radioButton.selected");
+radioButtons.forEach(radioButton => {
+    radioButton.addEventListener("click", e => {
+        const clickedRadioButton = e.target;
+
+        selectedRadioButton.classList.remove("selected");
+        clickedRadioButton.classList.add("selected");
+        selectedRadioButton = clickedRadioButton;
     });
 });
 
