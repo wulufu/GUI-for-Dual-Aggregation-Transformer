@@ -14,5 +14,5 @@ yapf
 timm
 einops
 h5py
-eel
+pywebview
 googlemaps

@@ -1,21 +1,17 @@
-import platform
-import sys
 import subprocess
 
-import eel
+import webview
 import googlemaps
 
 API_KEY = "AIzaSyAz7DIMRFMREUS1oea5JnwxDck_veuDqWI"
 
 
-@eel.expose
 def execute_enhance(enhance_level):
-    subprocess.run(["python", "basicsr/test.py", "-opt", enhance_level])
-    eel.finishEnhance()
+    subprocess.run(["python", "basicsr/test.py", "-opt",
+                    f"options/Test/test_single_{enhance_level}.yml"])
 
 
-@eel.expose
-def getImage(center, zoom, size=(640, 640), scale=2):
+def get_image(center, zoom, size=(640, 640), scale=2):
     client = googlemaps.Client(API_KEY)
     map = client.static_map(size, center, zoom, scale, "png", "satellite")
     
@@ -24,17 +20,11 @@ def getImage(center, zoom, size=(640, 640), scale=2):
             if chunk:
                 file.write(chunk)
 
-    eel.enhanceImage()
-
 
 if __name__ == '__main__':
-    eel.init("web")
-
-    try:
-        eel.start("layout.html", mode="chrome")
-    except EnvironmentError:
-        # If Chrome isn't found, fallback to Microsoft Edge on Win10 or greater
-        if sys.platform in ['win32', 'win64'] and int(platform.release()) >= 10:
-            eel.start("layout.html", mode='edge')
-        else:
-            raise
+    window = webview.create_window(title="DAT Image Enhancer",
+                                   url="../web/layout.html",
+                                   width=864, height=734, resizable=False)
+    window.expose(execute_enhance, get_image)
+    webview.settings['OPEN_DEVTOOLS_IN_DEBUG'] = False
+    webview.start(debug=True)

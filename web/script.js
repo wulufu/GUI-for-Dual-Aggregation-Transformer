@@ -11,9 +11,9 @@ okButton.addEventListener("click", () => {
 });
 
 const enhanceButton = document.getElementById("enhanceButton");
-enhanceButton.addEventListener("click", () => {
-    mapsDialog.showModal();
-    eel.getImage(map.getCenter(), map.getZoom());
+enhanceButton.addEventListener("click", async () => {
+    await getMapsImage();
+    await enhanceMapsImage();
 });
 
 const localImageTab = document.getElementById("localImageTab");
@@ -105,16 +105,20 @@ async function initMap() {
     });
 }
 
-eel.expose(enhanceImage);
-function enhanceImage() {
+async function getMapsImage() {
+    const mapCenter = map.getCenter();
+    const mapZoom = map.getZoom();
+
+    mapsDialog.showModal();
+    await window.pywebview.api.get_image(mapCenter, mapZoom);
     mapsDialog.close();
-    enhancingDialog.showModal();
-    const enhanceLevel = selectedButton.getAttribute("id");
-    eel.execute_enhance(`options/Test/test_single_${enhanceLevel}.yml`);
 }
 
-eel.expose(finishEnhance)
-function finishEnhance() {
+async function enhanceMapsImage() {
+    const enhanceLevel = selectedRadioButton.getAttribute("id");
+
+    enhancingDialog.showModal();
+    await window.pywebview.api.execute_enhance(enhanceLevel);
     enhancingDialog.close();
     successDialog.showModal();
 }
