@@ -7,17 +7,17 @@
         <script type="text/javascript" src="script.js" defer></script>
     </head>
     <body>
-        <input type="text" id="searchBox" placeholder="Search for a place...">
         <div id="tabs">
-            <button>Local Image</button>
-            <button>Satellite Image</button>
+            <button id="localImageTab" class="tab selected">Local Image</button>
+            <button id="satelliteTab" class="tab">Satellite Image</button>
         </div>
         <div id="main">
             <div id="content">
-                <div id="map"></div>
-                <div id="fileSelect" hidden>
-                    <input type="file" accept="image/*">
+                <input type="text" id="searchBox" placeholder="Search for a place...">
+                <div id="fileSelect">
+                    <input type="file" accept=".jpg,.png">
                 </div>
+                <div id="map"></div>
             </div>
             <div id="buttons">
                 <button id="enhanceButton">Enhance!</button>

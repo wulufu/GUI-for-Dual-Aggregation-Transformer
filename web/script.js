@@ -1,6 +1,9 @@
 const mapsDialog = document.getElementById("mapsDialog");
 const enhancingDialog = document.getElementById("enhancingDialog");
 const successDialog = document.getElementById("successDialog");
+const fileSelect = document.getElementById("fileSelect");
+const searchBox = document.getElementById("searchBox");
+let map = undefined;
 
 const okButton = document.getElementById("okButton");
 okButton.addEventListener("click", () => {
@@ -11,6 +14,27 @@ const enhanceButton = document.getElementById("enhanceButton");
 enhanceButton.addEventListener("click", () => {
     mapsDialog.showModal();
     eel.getImage(map.getCenter(), map.getZoom());
+});
+
+const localImageTab = document.getElementById("localImageTab");
+localImageTab.addEventListener("click", () => {
+    localImageTab.classList.add("selected");
+    satelliteTab.classList.remove("selected");
+    map.getDiv().style.display = "none";
+    fileSelect.style.display = "block";
+});
+
+const satelliteTab = document.getElementById("satelliteTab");
+satelliteTab.addEventListener("click", async () => {
+    if (map === undefined) {
+        await initMap();
+        searchBox.style.display = "block";
+    }
+
+    satelliteTab.classList.add("selected");
+    localImageTab.classList.remove("selected");
+    fileSelect.style.display = "none";
+    map.getDiv().style.display = "block";
 });
 
 const radioButtons = document.querySelectorAll(".radioButton");
@@ -24,9 +48,6 @@ radioButtons.forEach(radioButton => {
         selectedRadioButton = clickedRadioButton;
     });
 });
-
-let map;
-initMap();
 
 async function initMap() {
     // Load the Maps JavaScript API dynamically
@@ -51,15 +72,13 @@ async function initMap() {
     });
 
     // Create the search box and link it to the UI element.
-    const input = document.getElementById("searchBox");
-    const searchBox = new SearchBox(input);
-  
-    map.controls[ControlPosition.TOP_LEFT].push(input);
+    const search = new SearchBox(searchBox);
+    map.controls[ControlPosition.TOP_LEFT].push(searchBox);
 
     // Listen for the event fired when the user selects a prediction and retrieve
     // more details for that place.
-    searchBox.addListener("places_changed", () => {
-        const places = searchBox.getPlaces();
+    search.addListener("places_changed", () => {
+        const places = search.getPlaces();
 
         if (places.length === 0) {
             return;

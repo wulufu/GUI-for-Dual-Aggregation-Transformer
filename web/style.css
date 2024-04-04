@@ -14,12 +14,13 @@ body {
     display: flex;
 }
 
-    #tabs button {
+    .tab {
         background-color: #141e24;
         color: wheat;
 
         border-radius: 5px;
         border-width: 7px;
+        border-bottom: none;
 
         height: 50px;
         width: 150px;
@@ -27,6 +28,10 @@ body {
         cursor: pointer;
         font-size: large;
         text-wrap: nowrap;
+    }
+
+    .tab.selected {
+        background-color: #213039;
     }
 
 #main {
@@ -48,6 +53,8 @@ body {
     height: 100%;
     width: 100%;
 
+    display: none; /* Application opens to file select initially */
+
     border: 2px solid greenyellow;
     border-radius: 5px;
 }
@@ -58,6 +65,7 @@ body {
 
         margin: 8px;
         position: absolute; /* Fixes search box being too big on page load */
+        display: none; /* Application opens to file select initially */
     }
 
     #map button {
