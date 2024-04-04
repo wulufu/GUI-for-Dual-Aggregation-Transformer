@@ -8,12 +8,23 @@
     </head>
     <body>
         <input type="text" id="searchBox" placeholder="Search for a place...">
-        <div id="map"></div>
-        <div id="buttonGroup">
-            <button id="enhanceButton">Enhance!</button>
-            <button id="x2" class="radioButton selected">x2</button>
-            <button id="x3" class="radioButton">x3</button>
-            <button id="x4" class="radioButton">x4</button>
+        <div id="tabs">
+            <button>Local Image</button>
+            <button>Satellite Image</button>
+        </div>
+        <div id="main">
+            <div id="content">
+                <div id="map"></div>
+                <div id="fileSelect" hidden>
+                    <input type="file" accept="image/*">
+                </div>
+            </div>
+            <div id="buttons">
+                <button id="enhanceButton">Enhance!</button>
+                <button id="x2" class="radioButton selected">x2</button>
+                <button id="x3" class="radioButton">x3</button>
+                <button id="x4" class="radioButton">x4</button>
+            </div>
         </div>
         <dialog id="mapsDialog">
             <p>Getting image from Google Maps...</p>

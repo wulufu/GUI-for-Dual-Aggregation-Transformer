@@ -1,26 +1,63 @@
 html, body {
-    height: calc(100% - 8px);
-    width: 100%;
-    
+    height: 99%;
+    width: 98%;
+}
+
+body {
     background-color: #1d262c;
 
     display: flex;
+    flex-direction: column;
+}
+
+#tabs {
+    display: flex;
+}
+
+    #tabs button {
+        background-color: #141e24;
+        color: wheat;
+
+        border-radius: 5px;
+        border-width: 7px;
+
+        height: 50px;
+        width: 150px;
+
+        cursor: pointer;
+        font-size: large;
+        text-wrap: nowrap;
+    }
+
+#main {
+    height: 100%;
+    width: 100%;
+
+    display: flex;
+    gap: 24px;
+}
+
+#content {
+    background-color: lightgray;
+
+    height: 100%;
+    width: 100%;
 }
 
 #map {
-    height: 99%;
-    width: 98%;
+    height: 100%;
+    width: 100%;
 
     border: 2px solid greenyellow;
     border-radius: 5px;
 }
 
     #searchBox {
-        margin: 8px;
-        position: absolute; /* Fixes search box being too big on page load */
-
         background-color: #1d262c;
         color: white;
+
+        margin: 8px;
+        position: absolute; /* Fixes search box being too big on page load */
     }
 
     #map button {
@@ -31,11 +68,65 @@ html, body {
         background-color: #1d262c;
     }
 
-dialog {
-    color: greenyellow;
-    background-color: #213039;
-    border-radius: 10px;
+    .gm-style iframe + div { /* Removes the blue border when interacting with the map */
+        border: none !important;
+    }
+    
+#buttons {
+    display: flex;
+    flex-direction: column;
 
+    align-items: center;
+    justify-content: center;
+
+    gap: 12px;
+}
+    
+    #enhanceButton {
+        color: wheat;
+        background-color: rgb(102, 165, 9);
+
+        border-radius: 5px;
+        border-width: 7px;
+
+        height: 75px;
+        width: 150px;
+
+        cursor: pointer;
+        font-size: x-large;
+        font-weight: bold;
+    }
+    
+    .radioButton {
+        color: wheat;
+        background-color: #141e24;
+
+        border: 15px outset black;
+        border-radius: 50%;
+
+        height: 125px;
+        width: 125px;
+
+        padding-left: 8px;
+
+        cursor: pointer;
+        font-size: xx-large;
+        font-weight: bold;
+    }
+    
+        .radioButton.selected {
+            border: 15px inset orange;
+        }
+    
+        .radioButton:active {
+            background-color: #213039;
+        }
+    
+dialog {
+    background-color: #213039;
+    color: greenyellow;
+
+    border-radius: 10px;
     font-size: x-large;
 }
 
@@ -47,61 +138,10 @@ dialog {
     #okButton {
         color: greenyellow;
         background-color: #1d262c;
+
         border: 2px solid greenyellow;
         border-radius: 15%;
 
+        cursor: pointer;
         font-size: large;
-
-        cursor: pointer;
     }
-
-#buttonGroup {
-    padding: 8px;
-    background-color: #1d262c;
-    display: flex;
-    flex-direction: column;
-    margin-left: 8px;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-}
-
-    #enhanceButton {
-        width: 150px;
-        height: 75px;
-
-        color: wheat;
-        background-color: rgb(102, 165, 9);
-        border-radius: 5px;
-        cursor: pointer;
-
-        font-size: x-large;
-        font-weight: bold;
-        border-width: 7px;
-        flex-shrink: 0;
-    }
-
-    .radioButton {
-        height: 125px;
-        width: 125px;
-
-        color: wheat;
-        background-color: #141e24;
-        cursor: pointer;
-
-        border: 15px outset black;
-        border-radius: 50%;
-        font-size: xx-large;
-        font-weight: bold;
-
-        padding-left: 8px;
-        flex-shrink: 0;
-    }
-
-        .radioButton.selected {
-            border: 15px inset orange;
-        }
-
-        .radioButton:active {
-            background-color: #213039;
-        }
