@@ -10,6 +10,12 @@ const okButton = document.getElementById("okButton");
 okButton.addEventListener("click", async () => {
     successDialog.close();
     await window.pywebview.api.clear_image_folder();
+
+    const fileEntries = document.querySelectorAll("fileList div");
+
+    for (fileEntry of fileEntries) {
+        fileEntry.remove();
+    }
 });
 
 const enhanceButton = document.getElementById("enhanceButton");
