@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Satellite Image Enhancer</title>
         <link rel="stylesheet" href="style.css">
         <script type="text/javascript" src="script.js" defer></script>
     </head>
@@ -11,12 +10,19 @@
             <button id="satelliteTab" class="tab">Satellite Image</button>
         </div>
         <div id="main">
-            <div id="content">
-                <input type="text" id="searchBox" placeholder="Search for a place...">
+            <div id="contentWindow">
                 <div id="fileSelect">
-                    <input type="file" accept=".jpg,.png">
+                    <div id="fileDropZone">
+                        <p>Drop image files here or click below!</p>
+                        <button id="chooseFileButton">Choose Files</button>
+                    </div>
+                    <div id="fileListWindow">
+                        <p>Selected Files:</p>
+                        <div id="fileList"></div>
+                    </div>
                 </div>
                 <div id="map"></div>
+                <input type="text" id="searchBox" placeholder="Search for a place...">
             </div>
             <div id="buttons">
                 <button id="enhanceButton">Enhance!</button>

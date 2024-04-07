@@ -1,9 +1,7 @@
 html, body {
-    height: calc(100% - 8px);
-}
-
-body {
     background-color: #1d262c;
+    
+    height: calc(100% - 8px);
 
     display: flex;
     flex-direction: column;
@@ -41,93 +39,135 @@ body {
     gap: 24px;
 }
 
-#content {
-    background-color: lightgray;
+    #contentWindow {
+        background-color: lightgray;
 
-    height: 640px;
-    width: 640px;
-}
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
-#map {
-    height: 638px;
-    width: 638px;
-
-    display: none; /* Application opens to file select initially */
-
-    border: 2px solid greenyellow;
-    border-radius: 0px 5px 5px 5px;
-}
-
-    #searchBox {
-        background-color: #1d262c;
-        color: white;
-
-        margin: 8px;
-        position: absolute; /* Fixes search box being too big on page load */
-        display: none; /* Application opens to file select initially */
+        height: 640px;
+        width: 640px;
     }
 
-    #map button {
-        background-color: #1d262c !important;
-    }
+        #fileSelect {
+            height: 100%;
+            width: 100%;
 
-    .gm-style { /* Changes the background for the grid lines and the div before the map loads */
-        background-color: #1d262c;
-    }
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .gm-style iframe + div { /* Removes the blue border when interacting with the map */
-        border: none !important;
-    }
+            #fileDropZone {
+                height: 40%;
+                width: 90%;
+
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
     
-#buttons {
-    display: flex;
-    flex-direction: column;
+                border: 2px dashed black;
+                border-radius: 10px;
+            }
 
-    align-items: center;
-    justify-content: center;
+            #fileListWindow {
+                height: 40%;
+                width: 90%;
 
-    gap: 12px;
-}
-    
-    #enhanceButton {
-        color: wheat;
-        background-color: rgb(102, 165, 9);
+                display: flex;
+                flex-direction: column;
+                overflow: auto;
+            }
 
-        border-radius: 5px;
-        border-width: 7px;
+                #fileList div {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                }
 
-        height: 75px;
-        width: 150px;
+        #map {
+            height: 636px;
+            width: 636px;
 
-        cursor: pointer;
-        font-size: x-large;
-        font-weight: bold;
-    }
-    
-    .radioButton {
-        color: wheat;
-        background-color: #141e24;
+            display: none; /* Application opens to file select initially */
 
-        border: 15px outset black;
-        border-radius: 50%;
+            border: 2px solid greenyellow;
+            border-radius: 0px 5px 5px 5px;
+        }
 
-        height: 125px;
-        width: 125px;
+        #searchBox {
+            background-color: #1d262c;
+            color: white;
 
-        padding-left: 8px;
+            margin: 8px;
+            position: absolute; /* Fixes search box being too big on page load */
+            display: none; /* Application opens to file select initially */
+        }
 
-        cursor: pointer;
-        font-size: xx-large;
-        font-weight: bold;
-    }
-    
-        .radioButton.selected {
-            border: 15px inset orange;
+        #map button {
+            background-color: #1d262c !important;
+        }
+
+        .gm-style { /* Changes the background for the grid lines and the div before the map loads */
+            background-color: #1d262c;
+        }
+
+        .gm-style iframe + div { /* Removes the blue border when interacting with the map */
+            border: none !important;
         }
     
-        .radioButton:active {
-            background-color: #213039;
+    #buttons {
+        display: flex;
+        flex-direction: column;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 12px;
+    }
+        
+        #enhanceButton {
+            color: wheat;
+            background-color: rgb(102, 165, 9);
+
+            border-radius: 5px;
+            border-width: 7px;
+
+            height: 75px;
+            width: 150px;
+
+            cursor: pointer;
+            font-size: x-large;
+            font-weight: bold;
         }
+        
+        .radioButton {
+            color: wheat;
+            background-color: #141e24;
+
+            border: 15px outset black;
+            border-radius: 50%;
+
+            height: 125px;
+            width: 125px;
+
+            padding-left: 8px;
+
+            cursor: pointer;
+            font-size: xx-large;
+            font-weight: bold;
+        }
+        
+            .radioButton.selected {
+                border: 15px inset orange;
+            }
+        
+            .radioButton:active {
+                background-color: #213039;
+            }
     
 dialog {
     background-color: #213039;
