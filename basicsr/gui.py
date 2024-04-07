@@ -40,10 +40,18 @@ def remove_file(file_name):
     os.remove(f"datasets/single/{file_name}")
 
 
+def clear_image_folder():
+    files = os.scandir("datasets/single")
+
+    for file in files:
+        os.remove(file)
+
+
 if __name__ == '__main__':
     window = webview.create_window(title="DAT Image Enhancer",
                                    url="../web/layout.html",
                                    width=864, height=734, resizable=False)
-    window.expose(execute_enhance, get_maps_image, open_file_dialog, remove_file)
+    window.expose(execute_enhance, get_maps_image, open_file_dialog, remove_file, clear_image_folder)
+    window.events.closing += clear_image_folder
     webview.settings['OPEN_DEVTOOLS_IN_DEBUG'] = False
-    webview.start(debug=True)
+    webview.start(clear_image_folder, debug=True)

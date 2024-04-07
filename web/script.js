@@ -7,8 +7,9 @@ const fileList = document.getElementById("fileList");
 let map;
 
 const okButton = document.getElementById("okButton");
-okButton.addEventListener("click", () => {
+okButton.addEventListener("click", async () => {
     successDialog.close();
+    await window.pywebview.api.clear_image_folder();
 });
 
 const enhanceButton = document.getElementById("enhanceButton");
