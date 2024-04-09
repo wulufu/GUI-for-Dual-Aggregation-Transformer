@@ -200,7 +200,7 @@ dialog {
         opacity: 0.75;
     }
 
-    dialog button.dialogClosing {
+    dialog button.okButton {
         color: greenyellow;
         background-color: #1d262c;
 

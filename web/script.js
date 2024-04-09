@@ -104,9 +104,9 @@ async function enhanceImage() {
 
 // Adds functionality to buttons contained within dialogs.
 function initDialogs() {
-    const buttons = document.querySelectorAll("dialog button.dialogClosing");
+    const okButtons = document.querySelectorAll("dialog button.okButton");
 
-    for (let button of buttons) {
+    for (let button of okButtons) {
         button.addEventListener("click", () => {
             button.parentNode.close();
         })
@@ -219,6 +219,20 @@ async function initMap() {
 // This function is called by Python whenever it receives a new image file
 // so that the file name can be displayed in the GUI.
 function updateCurrentFile(file) {
-    const fileName = document.getElementById("fileName")
+    const fileName = document.getElementById("fileName");
     fileName.textContent = file;
+}
+
+// This function is called by Python whenever it receives more than one file 
+// through drag and drop so the user knows what went wrong.
+function showTooManyFilesDialog() {
+    const tooManyFilesDialog = document.getElementById("tooManyFilesDialog");
+    tooManyFilesDialog.showModal();
+}
+
+// This function is called by Python whenever it receives a file through
+// drag and drop that is not an image file so the user knows what went wrong.
+function showWrongFileTypeDialog() {
+    const wrongFileTypeDialog = document.getElementById("wrongFileTypeDialog");
+    wrongFileTypeDialog.showModal();
 }
