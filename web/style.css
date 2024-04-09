@@ -114,10 +114,6 @@ html, body {
             display: none; /* Application opens to file select initially */
         }
 
-            #map button {
-                background-color: #1d262c !important;
-            }
-
             #searchBox {
                 background-color: #1d262c;
                 color: white;
@@ -127,9 +123,22 @@ html, body {
                 display: none; /* Application opens to file select initially */
             }
 
+            /* Dark mode for all map controls */
+            button.gm-control-active {
+                background-color: #1d262c !important;
+            }
+
+            /* Fixes white line between zoom controls */
+            .gmnoprint button + div {
+                background-color: #666666 !important;
+
+                width: 40px !important;
+                right: 5px !important;
+            }
+
             /* Changes background for grid lines and div before map load */
             .gm-style {
-                background-color: #1d262c;
+                background-color: #1d262c !important;
             }
 
             /* Removes the blue border seen when interacting with the map */
