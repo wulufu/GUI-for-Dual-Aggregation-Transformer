@@ -104,12 +104,13 @@ async function enhanceImage() {
 
 // Adds functionality to buttons contained within dialogs.
 function initDialogs() {
-    const okButton = document.getElementById("okButton");
-    const successDialog = document.getElementById("successDialog");
+    const buttons = document.querySelectorAll("dialog button.dialogClosing");
 
-    okButton.addEventListener("click", () => {
-        successDialog.close();
-    });
+    for (let button of buttons) {
+        button.addEventListener("click", () => {
+            button.parentNode.close();
+        })
+    }
 }
 
 // Adds functionality to the file select window that allows it to receive
