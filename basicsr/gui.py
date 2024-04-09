@@ -19,16 +19,17 @@ class Api:
     # Gets an image from the Google Maps API and saves it to the image folder.
     def get_maps_image(self, center, zoom, size=(640, 640), scale=2):
         client = googlemaps.Client(self.MAPS_API_KEY)
-        map = client.static_map(size, center, zoom, scale, "png", "satellite")
+        img = client.static_map(size, center, zoom, scale, "png", "satellite")
+
+        clear_image_folder()
     
         with open("datasets/single/img.png", "wb") as file:
-            for chunk in map:
+            for chunk in img:
                 if chunk:
                     file.write(chunk)
 
-    # Called from JavaScript when the user wants to choose a file. Opens File
-    # Explorer, allowing the user to choose a single image file, and moves that
-    # file to the image folder.
+    # Opens File Explorer, allowing the user to choose a single image file,
+    # and moves that file to the image folder.
     def open_file_dialog(self):
         file_types = ('Image Files (*.jpg;*.png)',)
         selected_files = window.create_file_dialog(file_types=file_types)
