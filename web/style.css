@@ -99,6 +99,14 @@ html, body {
                 justify-content: center;
             }
 
+            #fileDropZone.active {
+                border-color: greenyellow;
+            }
+
+            #fileDropZone * { /* Prevents children from blocking file dragged over zone */
+                pointer-events: none;
+            }
+
             #currentFile {
                 width: 90%;
             }

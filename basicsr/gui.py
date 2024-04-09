@@ -43,10 +43,6 @@ def clear_image_folder():
         os.remove(file)
 
 
-def on_drag(event):
-    pass
-
-
 def on_drop(event):
     element_id = event["toElement"]["attributes"]["id"]
 
@@ -60,7 +56,6 @@ def on_drop(event):
         return
 
     file_type = dragged_files[0]["type"]
-    print(type(file_type))
 
     if file_type != "image/jpeg" and file_type != "image/png":
         return
@@ -85,9 +80,6 @@ def get_image_file(file):
 def bind_events():
     window.events.loaded += clear_image_folder
     window.events.closed += clear_image_folder
-    window.dom.document.events.dragenter += DOMEventHandler(on_drag, True, True)
-    window.dom.document.events.dragstart += DOMEventHandler(on_drag, True, True)
-    window.dom.document.events.dragover += DOMEventHandler(on_drag, True, True)
     window.dom.document.events.drop += DOMEventHandler(on_drop, True, True)
 
 

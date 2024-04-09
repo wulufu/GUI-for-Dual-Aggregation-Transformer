@@ -1,17 +1,23 @@
 const mapsDialog = document.getElementById("mapsDialog");
 const enhancingDialog = document.getElementById("enhancingDialog");
 const successDialog = document.getElementById("successDialog");
-const fileSelect = document.getElementById("fileSelect");
+const okButton = document.getElementById("okButton");
+const localImageTab = document.getElementById("localImageTab");
+const satelliteTab = document.getElementById("satelliteTab");
 const searchBox = document.getElementById("searchBox");
+const fileSelect = document.getElementById("fileSelect");
+const fileDropZone = document.getElementById("fileDropZone");
+const chooseFileButton = document.getElementById("chooseFileButton");
 const fileName = document.getElementById("fileName")
+const enhanceButton = document.getElementById("enhanceButton");
+const radioButtons = document.querySelectorAll(".radioButton");
+let selectedRadioButton = document.querySelector(".radioButton.selected");
 let map;
 
-const okButton = document.getElementById("okButton");
 okButton.addEventListener("click", async () => {
     successDialog.close();
 });
 
-const enhanceButton = document.getElementById("enhanceButton");
 enhanceButton.addEventListener("click", async () => {
     if (currentTab === satelliteTab) {
         await getMapsImage();
@@ -20,7 +26,6 @@ enhanceButton.addEventListener("click", async () => {
     await enhanceImage();
 });
 
-const localImageTab = document.getElementById("localImageTab");
 currentTab = document.querySelector(".tab.selected");
 localImageTab.addEventListener("click", () => {
     if (currentTab === localImageTab) {
@@ -35,7 +40,6 @@ localImageTab.addEventListener("click", () => {
     currentTab = localImageTab;
 });
 
-const satelliteTab = document.getElementById("satelliteTab");
 satelliteTab.addEventListener("click", async () => {
     if (currentTab === satelliteTab) {
         return;
@@ -53,13 +57,37 @@ satelliteTab.addEventListener("click", async () => {
     currentTab = satelliteTab;
 });
 
-const chooseFileButton = document.getElementById("chooseFileButton");
 chooseFileButton.addEventListener("click", async () => {
     await window.pywebview.api.open_file_dialog();
 });
 
-const radioButtons = document.querySelectorAll(".radioButton");
-let selectedRadioButton = document.querySelector(".radioButton.selected");
+fileDropZone.addEventListener("dragenter", () => {
+    fileDropZone.classList.add("active");
+});
+
+fileDropZone.addEventListener("dragleave", () => {
+    fileDropZone.classList.remove("active");
+});
+
+fileDropZone.addEventListener("drop", () => {
+    fileDropZone.classList.remove("active");
+});
+
+document.addEventListener("dragenter", event => {
+    event.preventDefault();
+    event.stopPropagation();
+});
+
+document.addEventListener("dragstart", event => {
+    event.preventDefault();
+    event.stopPropagation();
+});
+
+document.addEventListener("dragover", event => {
+    event.preventDefault();
+    event.stopPropagation();
+});
+
 radioButtons.forEach(radioButton => {
     radioButton.addEventListener("click", event => {
         const clickedRadioButton = event.target;
@@ -69,10 +97,6 @@ radioButtons.forEach(radioButton => {
         selectedRadioButton = clickedRadioButton;
     });
 });
-
-function updateCurrentFile(file) {
-    fileName.textContent = file;
-}
 
 async function initMap() {
     // Load the Maps JavaScript API dynamically
@@ -146,4 +170,9 @@ async function enhanceImage() {
     await window.pywebview.api.execute_enhance(enhanceLevel);
     enhancingDialog.close();
     successDialog.showModal();
+}
+
+// Called by Python when it receives a new file
+function updateCurrentFile(file) {
+    fileName.textContent = file;
 }
