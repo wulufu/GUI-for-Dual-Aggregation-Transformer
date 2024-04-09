@@ -14,9 +14,9 @@
                 <input type="text" id="searchBox" placeholder="Search for a place...">
                 <div id="map"></div>
                 <div id="fileSelect">
-                    <div id="fileDropZone">
-                        <p>Drop an image file here or click below!</p>
-                        <button id="chooseFileButton">Choose File</button>
+                    <div id="fileDropZone" class="fileDropAllowed">
+                        <p class="fileDropAllowed">Drop an image file here or click below!</p>
+                        <button id="chooseFileButton" class="fileDropAllowed">Choose File</button>
                     </div>
                     <div id="currentFile">
                         <p>Currently Selected File:</p>
@@ -24,14 +24,14 @@
                     </div>
                 </div>
             </div>
-            <div id="buttons">
+            <div id="buttonPanel">
                 <button id="enhanceButton">Enhance!</button>
                 <button id="x2" class="radioButton selected">x2</button>
                 <button id="x3" class="radioButton">x3</button>
                 <button id="x4" class="radioButton">x4</button>
             </div>
         </div>
-        <dialog id="mapsDialog">
+        <dialog id="mapsImageDialog">
             <p>Getting image from Google Maps...</p>
         </dialog>
         <dialog id="enhancingDialog">

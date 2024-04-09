@@ -70,20 +70,6 @@ html, body {
             font-size: x-large;
         }
 
-            #fileSelect p {
-                margin: 10px;
-            }
-
-            #fileSelect button {
-                color: greenyellow;
-                background-color: #1d262c;
-
-                border: 2px solid greenyellow;
-                border-radius: 5px;
-
-                font-size: large;
-            }
-
             #fileDropZone {
                 background-color: #1d262c;
                 
@@ -103,8 +89,18 @@ html, body {
                     border-color: greenyellow;
                 }
 
-                #fileDropZone * { /* Prevents children from blocking file dragged over zone */
-                    pointer-events: none;
+                    #chooseFileButton {
+                        color: greenyellow;
+                        background-color: #1d262c;
+
+                        border: 2px solid greenyellow;
+                        border-radius: 5px;
+
+                        font-size: large;
+                    }
+
+                #fileSelect p {
+                    margin: 10px;
                 }
 
                 #currentFile {
@@ -118,28 +114,30 @@ html, body {
             display: none; /* Application opens to file select initially */
         }
 
+            #map button {
+                background-color: #1d262c !important;
+            }
+
             #searchBox {
                 background-color: #1d262c;
                 color: white;
 
                 margin: 8px;
-                position: absolute; /* Fixes search box being too big on page load */
+                position: absolute; /* Fixes big search box on page load */
                 display: none; /* Application opens to file select initially */
             }
 
-            #map button {
-                background-color: #1d262c !important;
-            }
-
-            .gm-style { /* Changes the background for the grid lines and the div before the map loads */
+            /* Changes background for grid lines and div before map load */
+            .gm-style {
                 background-color: #1d262c;
             }
 
-            .gm-style iframe + div { /* Removes the blue border when interacting with the map */
+            /* Removes the blue border seen when interacting with the map */
+            .gm-style iframe + div {
                 border: none !important;
             }
     
-    #buttons {
+    #buttonPanel {
         display: flex;
         flex-direction: column;
 

@@ -6,47 +6,51 @@ import webview
 import googlemaps
 from webview.dom import DOMEventHandler
 
-API_KEY = "AIzaSyAz7DIMRFMREUS1oea5JnwxDck_veuDqWI"
 
+# Contains methods that can be called from JavaScript
+class Api:
+    MAPS_API_KEY = "AIzaSyAz7DIMRFMREUS1oea5JnwxDck_veuDqWI"
 
-def execute_enhance(enhance_level):
-    subprocess.run(["python", "basicsr/test.py", "-opt",
-                    f"options/Test/test_single_{enhance_level}.yml"])
+    # Runs DAT with an enhance_level of "x2", "x3", or "x4"
+    def execute_enhance(self, enhance_level):
+        subprocess.run(["python", "basicsr/test.py", "-opt",
+                        f"options/Test/test_single_{enhance_level}.yml"])
 
-
-def get_maps_image(center, zoom, size=(640, 640), scale=2):
-    client = googlemaps.Client(API_KEY)
-    map = client.static_map(size, center, zoom, scale, "png", "satellite")
+    # Gets an image from the Google Maps API and saves it to the image folder.
+    def get_maps_image(self, center, zoom, size=(640, 640), scale=2):
+        client = googlemaps.Client(self.MAPS_API_KEY)
+        map = client.static_map(size, center, zoom, scale, "png", "satellite")
     
-    with open("datasets/single/img.png", "wb") as file:
-        for chunk in map:
-            if chunk:
-                file.write(chunk)
+        with open("datasets/single/img.png", "wb") as file:
+            for chunk in map:
+                if chunk:
+                    file.write(chunk)
+
+    # Called from JavaScript when the user wants to choose a file. Opens File
+    # Explorer, allowing the user to choose a single image file, and moves that
+    # file to the image folder.
+    def open_file_dialog(self):
+        file_types = ('Image Files (*.jpg;*.png)',)
+        selected_files = window.create_file_dialog(file_types=file_types)
+
+        if selected_files is None:
+            return
+
+        file_path = selected_files[0]
+        clear_image_folder()
+        get_image_file(file_path)
 
 
-def open_file_dialog():
-    file_types = ('Image Files (*.jpg;*.png)',)
-    selected_files = window.create_file_dialog(file_types=file_types)
-
-    if selected_files is None:
+# Called when the window detects that the user has dropped a file. Determines
+# if the file was dropped within a designated zone and ensures that the file
+# is an image file, then moves it to the image folder.
+def on_drop(event):
+    try:
+        element_class = event["toElement"]["attributes"]["class"]
+    except KeyError:
         return
 
-    file = selected_files[0]
-    clear_image_folder()
-    get_image_file(file)
-
-
-def clear_image_folder():
-    files = os.scandir("datasets/single")
-
-    for file in files:
-        os.remove(file)
-
-
-def on_drop(event):
-    element_id = event["toElement"]["attributes"]["id"]
-
-    if element_id != "fileDropZone":
+    if element_class != "fileDropAllowed":
         return
 
     dragged_files = event["dataTransfer"]["files"]
@@ -55,28 +59,40 @@ def on_drop(event):
     if num_files == 0:
         return
 
-    file_type = dragged_files[0]["type"]
+    file_info = dragged_files[0]
+    file_type = file_info["type"]
 
     if file_type != "image/jpeg" and file_type != "image/png":
         return
 
-    file = dragged_files[0]["pywebviewFullPath"]
+    file_path = dragged_files[0]["pywebviewFullPath"]
     clear_image_folder()
-    get_image_file(file)
+    get_image_file(file_path)
 
 
-def get_image_file(file):
-    file_name = os.path.basename(file)
+# Moves the file at file_path to the image folder used by DAT, then tells
+# JavaScript to update its current file with the new file name.
+def get_image_file(file_path):
+    file_name = os.path.basename(file_path)
 
     # Use a hard link if possible to save space
     try:
-        os.link(file, f"datasets/single/{file_name}")
+        os.link(file_path, f"datasets/single/{file_name}")
     except OSError:
-        shutil.copy(file, "datasets/single")
+        shutil.copy(file_path, "datasets/single")
 
     window.evaluate_js(f'updateCurrentFile("{file_name}")')
 
 
+# Removes all files in the image folder so a new image can be the only one.
+def clear_image_folder():
+    files = os.scandir("datasets/single")
+
+    for file in files:
+        os.remove(file)
+
+
+# Adds event listeners to the window that can't be handled within JavaScript.
 def bind_events():
     window.events.loaded += clear_image_folder
     window.events.closed += clear_image_folder
@@ -85,8 +101,7 @@ def bind_events():
 
 if __name__ == '__main__':
     window = webview.create_window(title="DAT Image Enhancer",
-                                   url="../web/layout.html",
-                                   width=864, height=734, resizable=True)
-    window.expose(execute_enhance, get_maps_image, open_file_dialog, clear_image_folder)
+                                   js_api=Api(),
+                                   url="../web/layout.html")
     webview.settings['OPEN_DEVTOOLS_IN_DEBUG'] = False
     webview.start(bind_events, debug=True)
