@@ -3,43 +3,44 @@ const enhancingDialog = document.getElementById("enhancingDialog");
 const successDialog = document.getElementById("successDialog");
 const fileSelect = document.getElementById("fileSelect");
 const searchBox = document.getElementById("searchBox");
-const fileList = document.getElementById("fileList");
+const fileName = document.getElementById("fileName")
 let map;
 
 const okButton = document.getElementById("okButton");
 okButton.addEventListener("click", async () => {
     successDialog.close();
-    await window.pywebview.api.clear_image_folder();
-
-    const fileEntries = document.querySelectorAll("fileList div");
-
-    for (fileEntry of fileEntries) {
-        fileEntry.remove();
-    }
 });
 
 const enhanceButton = document.getElementById("enhanceButton");
 enhanceButton.addEventListener("click", async () => {
-    const currentTab = document.querySelector(".tab.selected");
-
     if (currentTab === satelliteTab) {
         await getMapsImage();
     }
 
-    await enhanceImages();
+    await enhanceImage();
 });
 
 const localImageTab = document.getElementById("localImageTab");
+currentTab = document.querySelector(".tab.selected");
 localImageTab.addEventListener("click", () => {
+    if (currentTab === localImageTab) {
+        return;
+    }
+
     localImageTab.classList.add("selected");
     satelliteTab.classList.remove("selected");
     searchBox.style.display = "none";
     map.getDiv().style.display = "none";
     fileSelect.style.display = "flex";
+    currentTab = localImageTab;
 });
 
 const satelliteTab = document.getElementById("satelliteTab");
 satelliteTab.addEventListener("click", async () => {
+    if (currentTab === satelliteTab) {
+        return;
+    }
+
     if (map === undefined) {
         await initMap();
     }
@@ -49,29 +50,18 @@ satelliteTab.addEventListener("click", async () => {
     fileSelect.style.display = "none";
     map.getDiv().style.display = "block";
     searchBox.style.display = "block";
+    currentTab = satelliteTab;
 });
 
 const chooseFileButton = document.getElementById("chooseFileButton");
 chooseFileButton.addEventListener("click", async () => {
-    const files = await window.pywebview.api.open_file_dialog();
-    
-    for (let file of files) {
-        const fileEntry = document.createElement("div");
-        const fileName = document.createElement("p");
-        const xButton = document.createElement("button");
+    const file = await window.pywebview.api.open_file_dialog();
 
-        fileName.textContent = file;
-        xButton.textContent = "X"
-
-        xButton.addEventListener("click", async () => {
-            await window.pywebview.api.remove_file(file);
-            fileEntry.remove();
-        });
-
-        fileEntry.appendChild(fileName);
-        fileEntry.appendChild(xButton);
-        fileList.appendChild(fileEntry);
+    if (file === undefined) {
+        return;
     }
+
+    fileName.textContent = file;
 });
 
 const radioButtons = document.querySelectorAll(".radioButton");
@@ -151,7 +141,7 @@ async function getMapsImage() {
     mapsDialog.close();
 }
 
-async function enhanceImages() {
+async function enhanceImage() {
     const enhanceLevel = selectedRadioButton.getAttribute("id");
 
     enhancingDialog.showModal();

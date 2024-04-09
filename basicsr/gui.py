@@ -24,20 +24,24 @@ def get_maps_image(center, zoom, size=(640, 640), scale=2):
 
 
 def open_file_dialog():
-    file_types = ['Image Files (*.jpg;*.png)']
-    files = window.create_file_dialog(allow_multiple=True, file_types=file_types)
-    file_names = []
+    file_types = ('Image Files (*.jpg;*.png)',)
+    selected_files = window.create_file_dialog(file_types=file_types)
 
-    if files is not None:
-        for file in files:
-            shutil.copy(file, "datasets/single")
-            file_names.append(os.path.basename(file))
+    if selected_files is None:
+        return None
 
-    return file_names
+    file = selected_files[0]
+    file_name = os.path.basename(file)
 
+    clear_image_folder()
 
-def remove_file(file_name):
-    os.remove(f"datasets/single/{file_name}")
+    # Use a hard link if possible to save space
+    try:
+        os.link(file, f"datasets/single/{file_name}")
+    except OSError:
+        shutil.copy(file, "datasets/single")
+
+    return file_name
 
 
 def clear_image_folder():
@@ -50,8 +54,8 @@ def clear_image_folder():
 if __name__ == '__main__':
     window = webview.create_window(title="DAT Image Enhancer",
                                    url="../web/layout.html",
-                                   width=864, height=734, resizable=False)
-    window.expose(execute_enhance, get_maps_image, open_file_dialog, remove_file, clear_image_folder)
+                                   width=864, height=734, resizable=True)
+    window.expose(execute_enhance, get_maps_image, open_file_dialog, clear_image_folder)
     window.events.closing += clear_image_folder
     webview.settings['OPEN_DEVTOOLS_IN_DEBUG'] = False
     webview.start(clear_image_folder, debug=True)
