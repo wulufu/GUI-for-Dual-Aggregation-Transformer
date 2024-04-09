@@ -29,10 +29,10 @@ html, body {
         text-wrap: nowrap;
     }
 
-    .tab.selected {
-        background-color: #213039;
-        border-bottom: none;
-    }
+        .tab.selected {
+            background-color: #213039;
+            border-bottom: none;
+        }
 
 #main {
     height: 100%;
@@ -99,17 +99,17 @@ html, body {
                 justify-content: center;
             }
 
-            #fileDropZone.active {
-                border-color: greenyellow;
-            }
+                #fileDropZone.active {
+                    border-color: greenyellow;
+                }
 
-            #fileDropZone * { /* Prevents children from blocking file dragged over zone */
-                pointer-events: none;
-            }
+                #fileDropZone * { /* Prevents children from blocking file dragged over zone */
+                    pointer-events: none;
+                }
 
-            #currentFile {
-                width: 90%;
-            }
+                #currentFile {
+                    width: 90%;
+                }
 
         #map {
             height: 100%;
@@ -118,26 +118,26 @@ html, body {
             display: none; /* Application opens to file select initially */
         }
 
-        #searchBox {
-            background-color: #1d262c;
-            color: white;
+            #searchBox {
+                background-color: #1d262c;
+                color: white;
 
-            margin: 8px;
-            position: absolute; /* Fixes search box being too big on page load */
-            display: none; /* Application opens to file select initially */
-        }
+                margin: 8px;
+                position: absolute; /* Fixes search box being too big on page load */
+                display: none; /* Application opens to file select initially */
+            }
 
-        #map button {
-            background-color: #1d262c !important;
-        }
+            #map button {
+                background-color: #1d262c !important;
+            }
 
-        .gm-style { /* Changes the background for the grid lines and the div before the map loads */
-            background-color: #1d262c;
-        }
+            .gm-style { /* Changes the background for the grid lines and the div before the map loads */
+                background-color: #1d262c;
+            }
 
-        .gm-style iframe + div { /* Removes the blue border when interacting with the map */
-            border: none !important;
-        }
+            .gm-style iframe + div { /* Removes the blue border when interacting with the map */
+                border: none !important;
+            }
     
     #buttons {
         display: flex;
