@@ -55,26 +55,24 @@ satelliteTab.addEventListener("click", async () => {
 
 const chooseFileButton = document.getElementById("chooseFileButton");
 chooseFileButton.addEventListener("click", async () => {
-    const file = await window.pywebview.api.open_file_dialog();
-
-    if (file === undefined) {
-        return;
-    }
-
-    fileName.textContent = file;
+    await window.pywebview.api.open_file_dialog();
 });
 
 const radioButtons = document.querySelectorAll(".radioButton");
 let selectedRadioButton = document.querySelector(".radioButton.selected");
 radioButtons.forEach(radioButton => {
-    radioButton.addEventListener("click", e => {
-        const clickedRadioButton = e.target;
+    radioButton.addEventListener("click", event => {
+        const clickedRadioButton = event.target;
 
         selectedRadioButton.classList.remove("selected");
         clickedRadioButton.classList.add("selected");
         selectedRadioButton = clickedRadioButton;
     });
 });
+
+function updateCurrentFile(file) {
+    fileName.textContent = file;
+}
 
 async function initMap() {
     // Load the Maps JavaScript API dynamically
