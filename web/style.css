@@ -1,8 +1,6 @@
-* {
-    font-family: Roboto;
-}
-
 html, body {
+    font-family: Roboto, serif;
+
     background-color: #1d262c;
     
     height: 100%;
@@ -23,7 +21,7 @@ html, body {
         top: 1px;
         
         border: 1px solid #545454;
-        border-radius: 5px 5px 0px 0px;
+        border-radius: 5px 5px 0 0;
 
         height: 40px;
         width: 150px;
@@ -31,7 +29,7 @@ html, body {
         cursor: pointer;
         
         font-size: large;
-        text-wrap: nowrap;
+        text-wrap: none;
     }
 
         .tab.selected {
@@ -51,7 +49,7 @@ html, body {
         background-color:#213039;
         
         border: 1px solid #545454;
-        border-radius: 0px 5px 5px 5px;
+        border-radius: 0 5px 5px 5px;
 
         display: flex;
         align-items: center;
