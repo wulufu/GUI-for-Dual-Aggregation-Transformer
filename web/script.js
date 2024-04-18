@@ -1,3 +1,5 @@
+"use strict";
+
 const localImageTab = document.getElementById("localImageTab");
 const satelliteTab = document.getElementById("satelliteTab");
 const searchBox = document.getElementById("searchBox")
@@ -36,10 +38,20 @@ function initTabs() {
         if (currentTab === satelliteTab) {
             return;
         }
+
+        const connectingDialog = document.getElementById("connectingDialog");
     
         // Loading of map is delayed until the first time we visit this tab
         if (map === undefined) {
-            await initMap();
+            connectingDialog.showModal();
+
+            try {
+                await initMap();
+            } catch {
+                connectingDialog.close();
+                document.getElementById("connectionFailedDialog").showModal();
+                return;
+            }
         }
     
         satelliteTab.classList.add("selected");
@@ -48,6 +60,7 @@ function initTabs() {
         map.getDiv().style.display = "block";
         searchBox.style.display = "block";
         currentTab = satelliteTab;
+        connectingDialog.close();
     });
 }
 
@@ -59,7 +72,12 @@ function initButtonPanel() {
 
     enhanceButton.addEventListener("click", async () => {
         if (currentTab === satelliteTab) {
-            await getMapsImage();
+            try {
+                await getMapsImage();
+            } catch {
+                document.getElementById("connectionFailedDialog").showModal();
+                return;
+            }
         }
     
         await enhanceImage();
@@ -85,8 +103,12 @@ async function getMapsImage() {
     const mapZoom = map.getZoom();
 
     mapsImageDialog.showModal();
-    await window.pywebview.api.get_maps_image(mapCenter, mapZoom);
-    mapsImageDialog.close();
+
+    try {
+        await window.pywebview.api.get_maps_image(mapCenter, mapZoom);
+    } finally {
+        mapsImageDialog.close();
+    }
 }
 
 // Asks Python to activate DAT using the enhance level represented by the
@@ -102,8 +124,17 @@ async function enhanceImage() {
     successDialog.showModal();
 }
 
-// Adds functionality to buttons contained within dialogs.
+// Adds functionality to buttons contained within dialogs, and prevents ESC
+// from being used to close dialogs.
 function initDialogs() {
+    const dialogs = document.querySelectorAll("dialog");
+
+    for (let dialog of dialogs) {
+        dialog.addEventListener('cancel', event => {
+            event.preventDefault();
+        });
+    }
+
     const okButtons = document.querySelectorAll("dialog button.okButton");
 
     for (let button of okButtons) {
@@ -226,13 +257,11 @@ function updateCurrentFile(file) {
 // This function is called by Python whenever it receives more than one file 
 // through drag and drop so the user knows what went wrong.
 function showTooManyFilesDialog() {
-    const tooManyFilesDialog = document.getElementById("tooManyFilesDialog");
-    tooManyFilesDialog.showModal();
+    document.getElementById("tooManyFilesDialog").showModal();
 }
 
 // This function is called by Python whenever it receives a file through
 // drag and drop that is not an image file so the user knows what went wrong.
 function showWrongFileTypeDialog() {
-    const wrongFileTypeDialog = document.getElementById("wrongFileTypeDialog");
-    wrongFileTypeDialog.showModal();
+    document.getElementById("wrongFileTypeDialog").showModal();
 }
