@@ -1,29 +1,29 @@
 import os
 import shutil
-import subprocess
 
 import webview
 import googlemaps
+from basicsr import execute
 from webview.dom import DOMEventHandler
 
 
 # Contains methods that can be called from JavaScript
 class Api:
     MAPS_API_KEY = "AIzaSyAz7DIMRFMREUS1oea5JnwxDck_veuDqWI"
-
+    FILE_TYPES = ('Image Files (*.jpg;*.png)',)
+        
     # Runs DAT with an enhance_level of "x2", "x3", or "x4"
     def execute_enhance(self, enhance_level):
-        subprocess.run(["python", "basicsr/test.py", "-opt",
-                        f"options/Test/test_single_{enhance_level}.yml"])
+        execute(enhance_level)
 
     # Gets an image from the Google Maps API and saves it to the image folder.
     def get_maps_image(self, center, zoom, size=(640, 640), scale=2):
-        client = googlemaps.Client(self.MAPS_API_KEY)
-        img = client.static_map(size, center, zoom, scale, "png", "satellite")
+        maps_client = googlemaps.Client(Api.MAPS_API_KEY)
+        img = maps_client.static_map(size, center, zoom, scale, "png", "satellite")
 
         clear_image_folder()
     
-        with open("datasets/single/img.png", "wb") as file:
+        with open(f"{IMAGE_FOLDER}/img.png", "wb") as file:
             for chunk in img:
                 if chunk:
                     file.write(chunk)
@@ -31,8 +31,7 @@ class Api:
     # Opens File Explorer, allowing the user to choose a single image file,
     # and moves that file to the image folder.
     def open_file_dialog(self):
-        file_types = ('Image Files (*.jpg;*.png)',)
-        selected_files = window.create_file_dialog(file_types=file_types)
+        selected_files = window.create_file_dialog(file_types=Api.FILE_TYPES)
 
         if selected_files is None:
             return
@@ -82,16 +81,16 @@ def get_image_file(file_path):
 
     # Use a hard link if possible to save space
     try:
-        os.link(file_path, f"datasets/single/{file_name}")
+        os.link(file_path, f"{IMAGE_FOLDER}/{file_name}")
     except OSError:
-        shutil.copy(file_path, "datasets/single")
+        shutil.copy(file_path, IMAGE_FOLDER)
 
     window.evaluate_js(f'updateCurrentFile("{file_name}")')
 
 
 # Removes all files in the image folder so a new image can be the only one.
 def clear_image_folder():
-    files = os.scandir("datasets/single")
+    files = os.scandir(IMAGE_FOLDER)
 
     for file in files:
         os.remove(file)
@@ -105,8 +104,10 @@ def bind_events():
 
 
 if __name__ == '__main__':
+    IMAGE_FOLDER = "datasets/single"
+    WEB_FOLDER = "../web"
     window = webview.create_window(title="DAT Image Enhancer",
                                    js_api=Api(),
-                                   url="../web/layout.html")
+                                   url=f"{WEB_FOLDER}/layout.html")
     webview.settings['OPEN_DEVTOOLS_IN_DEBUG'] = False
     webview.start(bind_events, debug=True)

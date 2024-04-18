@@ -79,9 +79,8 @@ def _postprocess_yml_value(value):
     return value
 
 
-def parse_options(root_path, is_train=True):
+def parse_options(root_path, yml_path, is_train=True):
     parser = argparse.ArgumentParser()
-    parser.add_argument('-opt', type=str, required=True, help='Path to option YAML file.')
     parser.add_argument('--launcher', choices=['none', 'pytorch', 'slurm'], default='none', help='job launcher')
     parser.add_argument('--auto_resume', action='store_true')
     parser.add_argument('--debug', action='store_true')
@@ -91,7 +90,7 @@ def parse_options(root_path, is_train=True):
     args = parser.parse_args()
 
     # parse yml to dict
-    with open(args.opt, mode='r') as f:
+    with open(yml_path, mode='r') as f:
         opt = yaml.load(f, Loader=ordered_yaml()[0])
 
     # distributed settings

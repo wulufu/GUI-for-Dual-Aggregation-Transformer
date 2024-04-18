@@ -8,9 +8,15 @@ from basicsr.utils import get_root_logger, get_time_str, make_exp_dirs
 from basicsr.utils.options import dict2str, parse_options
 
 
-def test_pipeline(root_path):
+def execute(enhance_level):
+    root_path = osp.abspath(osp.join(__file__, osp.pardir, osp.pardir))
+    yml_path = f"options/Test/test_single_{enhance_level}.yml"
+    test_pipeline(root_path, yml_path)
+
+
+def test_pipeline(root_path, yml_path):
     # parse options, set distributed setting, set ramdom seed
-    opt, _ = parse_options(root_path, is_train=False)
+    opt, _ = parse_options(root_path, yml_path, is_train=False)
 
     torch.backends.cudnn.benchmark = True
     # torch.backends.cudnn.deterministic = True
@@ -37,8 +43,3 @@ def test_pipeline(root_path):
         test_set_name = test_loader.dataset.opt['name']
         logger.info(f'Testing {test_set_name}...')
         model.validation(test_loader, current_iter=opt['name'], tb_logger=None, save_img=opt['val']['save_img'])
-
-
-if __name__ == '__main__':
-    root_path = osp.abspath(osp.join(__file__, osp.pardir, osp.pardir))
-    test_pipeline(root_path)
