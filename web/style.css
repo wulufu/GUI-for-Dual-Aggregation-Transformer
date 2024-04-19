@@ -83,8 +83,9 @@ html, body {
                 border: 2px dashed #545454;
                 border-radius: 10px;
                 
-                height: 70%;
+                height: 75%;
                 width: 90%;
+                max-width: 1000px;
 
                 display: flex;
                 flex-direction: column;
@@ -119,6 +120,7 @@ html, body {
                     border-radius: 5px;
                     
                     width: 90%;
+                    max-width: 1000px;
                 }
 
                     #fileName {

@@ -206,12 +206,16 @@ async function initMap() {
 
     map = new Map(document.getElementById("map"), {
         center: {lat: 42.684, lng: -73.827},
+        restriction: {
+            latLngBounds: {north: 85, south: -85, west: -180, east: 180},
+            strictBounds: true,
+        }, 
         zoom: 15,
-        mapTypeId: "satellite",
         tilt: 0,
-        minZoom: 3,
+        mapTypeId: "satellite",
         mapTypeControl: false,
         streetViewControl: false,
+        rotateControl: false,
         keyboardShortcuts: false
     });
 
@@ -257,11 +261,13 @@ function updateCurrentFile(file) {
 // This function is called by Python whenever it receives more than one file 
 // through drag and drop so the user knows what went wrong.
 function showTooManyFilesDialog() {
-    document.getElementById("tooManyFilesDialog").showModal();
+    const tooManyFilesDialog = document.getElementById("tooManyFilesDialog");
+    tooManyFilesDialog.showModal();
 }
 
 // This function is called by Python whenever it receives a file through
 // drag and drop that is not an image file so the user knows what went wrong.
 function showWrongFileTypeDialog() {
-    document.getElementById("wrongFileTypeDialog").showModal();
+    const wrongFileTypeDialog = document.getElementById("wrongFileTypeDialog");
+    wrongFileTypeDialog.showModal();
 }
