@@ -11,24 +11,24 @@
         </div>
         <div id="main">
             <div id="contentWindow">
-                <input type="text" id="searchBox" placeholder="Search for a place...">
+                <input type="text" id="searchBox" placeholder="Search for a place..." />
                 <div id="map"></div>
                 <div id="fileSelect">
                     <div id="fileDropZone" class="fileDropAllowed">
                         <p class="fileDropAllowed">Drop an image file here or click below!</p>
                         <button id="chooseFileButton" class="fileDropAllowed">Choose File</button>
                     </div>
-                    <div id="currentFile">
-                        <p>Currently Selected File:</p>
-                        <p id="fileName">None</p>
+                    <div id="filePathWindow">
+                        <p>Selected Image File:</p>
+                        <input type="text" id="filePath" placeholder="None" readonly />
                     </div>
                 </div>
             </div>
             <div id="buttonPanel">
                 <button id="enhanceButton">Enhance!</button>
-                <button id="x2" class="radioButton selected">x2</button>
-                <button id="x3" class="radioButton">x3</button>
-                <button id="x4" class="radioButton">x4</button>
+                <button id="x2Button" class="radioButton selected">x2</button>
+                <button id="x3Button" class="radioButton">x3</button>
+                <button id="x4Button" class="radioButton">x4</button>
             </div>
         </div>
         <dialog id="mapsImageDialog">
@@ -43,19 +43,24 @@
         <dialog id="connectionFailedDialog">
             <p>Could not connect to Google Maps.</p>
             <p>Check your internet connection and try again.</p>
-            <button class="okButton">OK</button>
+            <button class="dialogClose">OK</button>
         </dialog>
         <dialog id="successDialog">
-            <p>Success! Enhanced image has been saved.</p>
-            <button class="okButton">OK</button>
+            <p>Success! The image has been enhanced.</p>
+            <button id="saveImageButton">Save Image</button>
+            <button class="dialogClose">Exit</button>
+        </dialog>
+        <dialog id="noFileDialog">
+            <p>A file must be selected before enhancing.</p>
+            <button class="dialogClose">OK</button>
         </dialog>
         <dialog id="tooManyFilesDialog">
             <p>Only one file may be selected at a time.</p>
-            <button class="okButton">OK</button>
+            <button class="dialogClose">OK</button>
         </dialog>
         <dialog id="wrongFileTypeDialog">
             <p>File types other than images are not supported.</p>
-            <button class="okButton">OK</button>
+            <button class="dialogClose">OK</button>
         </dialog>
     </body>
 </html>

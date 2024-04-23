@@ -3,6 +3,7 @@
 const localImageTab = document.getElementById("localImageTab");
 const satelliteTab = document.getElementById("satelliteTab");
 const searchBox = document.getElementById("searchBox")
+const filePath = document.getElementById("filePath");
 const radioButtons = document.querySelectorAll(".radioButton");
 
 let selectedRadioButton = document.querySelector(".radioButton.selected");
@@ -42,7 +43,7 @@ function initTabs() {
         const connectingDialog = document.getElementById("connectingDialog");
     
         // Loading of map is delayed until the first time we visit this tab
-        if (map === undefined) {
+        if (!map) {
             connectingDialog.showModal();
 
             try {
@@ -77,7 +78,12 @@ function initButtonPanel() {
             } catch {
                 document.getElementById("connectionFailedDialog").showModal();
                 return;
+            } finally {
+                filePath.value = "";
             }
+        } else if (!filePath.value) {
+            document.getElementById("noFileDialog").showModal();
+            return;
         }
     
         await enhanceImage();
@@ -116,10 +122,19 @@ async function getMapsImage() {
 // for Python to finish, followed by a success dialog.
 async function enhanceImage() {
     const enhancingDialog = document.getElementById("enhancingDialog");
-    const enhanceLevel = selectedRadioButton.getAttribute("id");
+    const radioButton = selectedRadioButton.getAttribute("id")
+    let enhanceLevel;
+
+    if (radioButton === "x2Button") {
+        enhanceLevel = 2;
+    } else if (radioButton === "x3Button") {
+        enhanceLevel = 3;
+    } else if (radioButton === "x4Button") {
+        enhanceLevel = 4;
+    }
 
     enhancingDialog.showModal();
-    await window.pywebview.api.execute_enhance(enhanceLevel);
+    await window.pywebview.api.enhance_image(enhanceLevel);
     enhancingDialog.close();
     successDialog.showModal();
 }
@@ -130,14 +145,20 @@ function initDialogs() {
     const dialogs = document.querySelectorAll("dialog");
 
     for (let dialog of dialogs) {
-        dialog.addEventListener('cancel', event => {
+        dialog.addEventListener("cancel", event => {
             event.preventDefault();
         });
     }
 
-    const okButtons = document.querySelectorAll("dialog button.okButton");
+    const saveImageButton = document.getElementById("saveImageButton");
 
-    for (let button of okButtons) {
+    saveImageButton.addEventListener("click", async () => {
+        await window.pywebview.api.save_image_file(filePath.value);
+    });
+
+    const dialogCloseButtons = document.querySelectorAll("dialog button.dialogClose");
+
+    for (let button of dialogCloseButtons) {
         button.addEventListener("click", () => {
             button.parentNode.close();
         })
@@ -152,9 +173,9 @@ function initFileSelect() {
     const chooseFileButton = document.getElementById("chooseFileButton");
     const fileDropElements = document.querySelectorAll(".fileDropAllowed")
 
-    // This button asks Python to open File Explorer to get files
+    // This button asks Python to open File Explorer and get an image file
     chooseFileButton.addEventListener("click", async () => {
-        await window.pywebview.api.open_file_dialog();
+        await window.pywebview.api.choose_image_file();
     });
     
     let enterTarget;
@@ -254,20 +275,17 @@ async function initMap() {
 // This function is called by Python whenever it receives a new image file
 // so that the file name can be displayed in the GUI.
 function updateCurrentFile(file) {
-    const fileName = document.getElementById("fileName");
-    fileName.textContent = file;
+    filePath.value = file;
 }
 
 // This function is called by Python whenever it receives more than one file 
 // through drag and drop so the user knows what went wrong.
 function showTooManyFilesDialog() {
-    const tooManyFilesDialog = document.getElementById("tooManyFilesDialog");
-    tooManyFilesDialog.showModal();
+    document.getElementById("tooManyFilesDialog").showModal();
 }
 
 // This function is called by Python whenever it receives a file through
 // drag and drop that is not an image file so the user knows what went wrong.
 function showWrongFileTypeDialog() {
-    const wrongFileTypeDialog = document.getElementById("wrongFileTypeDialog");
-    wrongFileTypeDialog.showModal();
+    document.getElementById("wrongFileTypeDialog").showModal();
 }

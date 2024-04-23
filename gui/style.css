@@ -113,7 +113,7 @@ html, body {
                         background-color: #213039;
                     }
 
-                #currentFile {
+                #filePathWindow {
                     background-color: #1d262c;
 
                     border: 1px solid #545454;
@@ -121,10 +121,19 @@ html, body {
                     
                     width: 90%;
                     max-width: 1000px;
+
+                    display: flex;
+                    flex-direction: column;
                 }
 
-                    #fileName {
-                        font-size: large;
+                    #filePath {
+                        background-color: #1d262c;
+                        color: wheat;
+
+                        border: 1px solid #545454;
+
+                        margin: 0 8px 8px 8px;
+                        outline: none;
                     }
 
         #map {
@@ -139,6 +148,7 @@ html, body {
                 color: white;
 
                 margin: 8px;
+                outline: none;
                 position: absolute; /* Fixes big search box on page load */
                 display: none; /* Application opens to file select initially */
             }
@@ -225,6 +235,7 @@ dialog {
     border-radius: 10px;
 
     font-size: x-large;
+    outline: none;
 }
 
     dialog::backdrop {
@@ -232,7 +243,7 @@ dialog {
         opacity: 0.75;
     }
 
-    dialog button.okButton {
+    dialog button {
         color: greenyellow;
         background-color: #1d262c;
 
@@ -241,4 +252,5 @@ dialog {
 
         cursor: pointer;
         font-size: large;
+        outline: none;
     }
