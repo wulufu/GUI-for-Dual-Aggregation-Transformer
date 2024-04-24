@@ -50,7 +50,9 @@ class Api:
 
         # create model
         model = build_model(self.options)
+        reset_output_folder()
         model.validation(test_loader)
+        reset_input_folder()
 
     # Gets an image from the Google Maps API and saves it to the image folder.
     def get_maps_image(self, map_center, map_zoom):
@@ -151,10 +153,10 @@ def reset_input_folder():
 # Removes all files in the output folder to prepare for the next output image.
 # The output folder will be created if it does not exist.
 def reset_output_folder():
-    if os.path.exists(INPUT_PATH):
-        shutil.rmtree(INPUT_PATH)
+    if os.path.exists(OUTPUT_PATH):
+        shutil.rmtree(OUTPUT_PATH)
 
-    os.makedirs(INPUT_PATH)
+    os.makedirs(OUTPUT_PATH)
 
 
 # Removes all files in the output folder to prepare for the next output image.
