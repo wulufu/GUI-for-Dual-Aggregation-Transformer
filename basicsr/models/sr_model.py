@@ -41,10 +41,6 @@ class SRModel(BaseModel):
                 self.output = self.net_g(self.lq)
             self.net_g.train()
 
-    def dist_validation(self, dataloader):
-        if self.opt['rank'] == 0:
-            self.nondist_validation(dataloader)
-
     def nondist_validation(self, dataloader):
         for idx, val_data in enumerate(dataloader):
             img_name = osp.splitext(osp.basename(val_data['lq_path'][0]))[0]
@@ -71,10 +67,3 @@ class SRModel(BaseModel):
         if hasattr(self, 'gt'):
             out_dict['gt'] = self.gt.detach().cpu()
         return out_dict
-
-    def save(self, epoch, current_iter):
-        if hasattr(self, 'net_g_ema'):
-            self.save_network([self.net_g, self.net_g_ema], 'net_g', current_iter, param_key=['params', 'params_ema'])
-        else:
-            self.save_network(self.net_g, 'net_g', current_iter)
-        self.save_training_state(epoch, current_iter)

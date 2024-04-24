@@ -6,6 +6,7 @@ import googlemaps
 
 from basicsr.data import build_dataloader, build_dataset
 from basicsr.models import build_model
+from torch.cuda import is_available as cuda_is_available
 from webview.dom import DOMEventHandler
 
 MODELS_PATH = "models"
@@ -26,16 +27,14 @@ class Api:
     FILE_TYPES = ("Image Files (*.jpg;*.jpeg;*.png)",)
 
     options = {
-        "model_type": "DATModel", "num_gpu": 1,
-        "dataset": {"type": "SingleImageDataset",
-                    "dataroot_lq": INPUT_PATH},
-        "network_g": {"type": "DAT", "in_chans": 3, "img_size": 64,
-                      "img_range": 1, "split_size": [8, 32],
-                      "depth": [6, 6, 6, 6, 6, 6], "embed_dim": 180,
-                      "num_heads": [6, 6, 6, 6, 6, 6], "expansion_factor": 4,
-                      "resi_connection": '1conv'},
-        "path": {"strict_load_g": "True",
-                 "visualization": OUTPUT_PATH}
+        "model_type": "DATModel", "num_gpu": 1 if cuda_is_available() else 0,
+        "dataset": {"type": "SingleImageDataset", "dataroot_lq": INPUT_PATH},
+        "network_g": {
+            "type": "DAT", "in_chans": 3, "img_size": 64, "img_range": 1,
+            "split_size": [8, 32], "depth": [6, 6, 6, 6, 6, 6],
+            "embed_dim": 180, "num_heads": [6, 6, 6, 6, 6, 6],
+            "expansion_factor": 4, "resi_connection": '1conv'},
+        "path": {"visualization": OUTPUT_PATH}
     }
 
     # Enhances the image in the input folder using the scale provided.
