@@ -94,23 +94,6 @@ def tensor2img(tensor, rgb2bgr=True, out_type=np.uint8, min_max=(0, 1)):
     return result
 
 
-def tensor2img_fast(tensor, rgb2bgr=True, min_max=(0, 1)):
-    """This implementation is slightly faster than tensor2img.
-    It now only supports torch tensor with shape (1, c, h, w).
-
-    Args:
-        tensor (Tensor): Now only support torch tensor with (1, c, h, w).
-        rgb2bgr (bool): Whether to change rgb to bgr. Default: True.
-        min_max (tuple[int]): min and max values for clamp.
-    """
-    output = tensor.squeeze(0).detach().clamp_(*min_max).permute(1, 2, 0)
-    output = (output - min_max[0]) / (min_max[1] - min_max[0]) * 255
-    output = output.type(torch.uint8).cpu().numpy()
-    if rgb2bgr:
-        output = cv2.cvtColor(output, cv2.COLOR_RGB2BGR)
-    return output
-
-
 def imfrombytes(content, flag='color', float32=False):
     """Read an image from bytes.
 
@@ -151,22 +134,3 @@ def imwrite(img, file_path, params=None, auto_mkdir=True):
     ok = cv2.imwrite(file_path, img, params)
     if not ok:
         raise IOError('Failed in writing images.')
-
-
-def crop_border(imgs, crop_border):
-    """Crop borders of images.
-
-    Args:
-        imgs (list[ndarray] | ndarray): Images with shape (h, w, c).
-        crop_border (int): Crop border for each end of height and weight.
-
-    Returns:
-        list[ndarray]: Cropped images.
-    """
-    if crop_border == 0:
-        return imgs
-    else:
-        if isinstance(imgs, list):
-            return [v[crop_border:-crop_border, crop_border:-crop_border, ...] for v in imgs]
-        else:
-            return imgs[crop_border:-crop_border, crop_border:-crop_border, ...]

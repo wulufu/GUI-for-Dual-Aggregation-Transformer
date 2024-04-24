@@ -24,27 +24,25 @@ class Api:
     MAP_TYPE = "satellite"
     GMAPS_API_KEY = "AIzaSyAz7DIMRFMREUS1oea5JnwxDck_veuDqWI"
     FILE_TYPES = ("Image Files (*.jpg;*.jpeg;*.png)",)
-    options = {"name": "single", "model_type": "DATModel",
-               "num_gpu": 1, "is_train": False, "dist": False,
-               "dataset": {"name": "", "type": "SingleImageDataset",
-                           "dataroot_lq": INPUT_PATH, "phase": "val",
-                           "io_backend": {"type": "disk"}},
-               "network_g": {"type": "DAT", "in_chans": 3, "img_size": 64,
-                             "img_range": 1, "split_size": [8, 32],
-                             "depth": [6, 6, 6, 6, 6, 6], "embed_dim": 180,
-                             "num_heads": [6, 6, 6, 6, 6, 6],
-                             "expansion_factor": 4,
-                             "resi_connection": '1conv'},
-               "path": {"strict_load_g": "True",
-                        "visualization": OUTPUT_PATH},
-               "val": {"use_chop": True}}
+
+    options = {
+        "model_type": "DATModel", "num_gpu": 1,
+        "dataset": {"type": "SingleImageDataset",
+                    "dataroot_lq": INPUT_PATH},
+        "network_g": {"type": "DAT", "in_chans": 3, "img_size": 64,
+                      "img_range": 1, "split_size": [8, 32],
+                      "depth": [6, 6, 6, 6, 6, 6], "embed_dim": 180,
+                      "num_heads": [6, 6, 6, 6, 6, 6], "expansion_factor": 4,
+                      "resi_connection": '1conv'},
+        "path": {"strict_load_g": "True",
+                 "visualization": OUTPUT_PATH}
+    }
 
     # Enhances the image in the input folder using the scale provided.
     def enhance_image(self, scale):
         self.options["scale"] = scale
         self.options["network_g"]["upscale"] = scale
-        self.options["path"][
-            "pretrain_network_g"] = f"{MODELS_PATH}/DAT_x{scale}.pth"
+        self.options["path"]["pretrain_network_g"] = f"{MODELS_PATH}/DAT_x{scale}.pth"
 
         # create test dataset and dataloader
         dataset_options = self.options["dataset"]
@@ -53,7 +51,7 @@ class Api:
 
         # create model
         model = build_model(self.options)
-        model.validation(test_loader, None, None, save_img=True)
+        model.validation(test_loader)
 
     # Gets an image from the Google Maps API and saves it to the image folder.
     def get_maps_image(self, map_center, map_zoom):

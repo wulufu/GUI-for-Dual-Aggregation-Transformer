@@ -1,7 +1,7 @@
 # Modified from: https://github.com/facebookresearch/fvcore/blob/master/fvcore/common/registry.py  # noqa: E501
 
 
-class Registry():
+class Registry:
     """
     The registry that provides name -> object mapping, to support third-party
     users' custom modules.
@@ -78,5 +78,3 @@ class Registry():
 DATASET_REGISTRY = Registry('dataset')
 ARCH_REGISTRY = Registry('arch')
 MODEL_REGISTRY = Registry('model')
-LOSS_REGISTRY = Registry('loss')
-METRIC_REGISTRY = Registry('metric')
