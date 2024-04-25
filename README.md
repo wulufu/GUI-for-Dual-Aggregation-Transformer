@@ -8,6 +8,8 @@
 
 ```bash
 git clone https://github.com/wulufu/DAT-Image-Enhancer/
+```
+```bash
 pip install -r requirements.txt
 ```
 
