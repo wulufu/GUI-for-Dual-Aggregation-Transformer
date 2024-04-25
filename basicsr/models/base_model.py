@@ -8,7 +8,7 @@ class BaseModel():
 
     def __init__(self, opt):
         self.opt = opt
-        self.device = torch.device('cuda' if opt['num_gpu'] != 0 else 'cpu')
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     def feed_data(self, data):
         pass
@@ -38,15 +38,12 @@ class BaseModel():
             net_g_ema_params[k].data.mul_(decay).add_(net_g_params[k].data, alpha=1 - decay)
 
     def model_to_device(self, net):
-        """Model to device. It also warps models with DistributedDataParallel
-        or DataParallel.
+        """Model to device.
 
         Args:
             net (nn.Module)
         """
         net = net.to(self.device)
-        if self.opt['num_gpu'] > 1:
-            net = DataParallel(net)
         return net
 
     def get_bare_model(self, net):
@@ -62,7 +59,7 @@ class BaseModel():
 
         1. Print keys with different names.
         2. If strict=False, print the same key but with different tensor size.
-            It also ignore these keys with different sizes (not load).
+            It also ignores these keys with different sizes (not load).
 
         Args:
             crt_net (torch model): Current network.
