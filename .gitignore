@@ -1,10 +1,11 @@
 .idea
 
+# compiled files
+__pycache__/
+*.py[cod]
+
 # ignored folders
 temp/*
-
-# ignored files
-version.py
 
 # ignored files with suffix
 *.png
@@ -13,16 +14,3 @@ version.py
 *.gif
 *.pth
 *.zip
-
-# Distribution / packaging
-eggs/
-.eggs/
-*.egg-info/
-*.egg
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-/basicsr
