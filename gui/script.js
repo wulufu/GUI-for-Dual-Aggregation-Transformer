@@ -40,17 +40,17 @@ function initTabs() {
             return;
         }
 
-        const connectingDialog = document.getElementById("connectingDialog");
+        const dialogs = document.getElementById("dialogs");
     
         // Loading of map is delayed until the first time we visit this tab
         if (!map) {
-            connectingDialog.showModal();
+            showDialog(1);
 
             try {
                 await initMap();
             } catch {
-                connectingDialog.close();
-                document.getElementById("connectionFailedDialog").showModal();
+                dialogs.close();
+                showDialog(7);
                 return;
             }
         }
@@ -61,7 +61,7 @@ function initTabs() {
         map.getDiv().style.display = "block";
         searchBox.style.display = "block";
         currentTab = satelliteTab;
-        connectingDialog.close();
+        dialogs.close();
     });
 }
 
@@ -76,13 +76,13 @@ function initButtonPanel() {
             try {
                 await getMapsImage();
             } catch {
-                document.getElementById("connectionFailedDialog").showModal();
+                showDialog(7);
                 return;
             } finally {
                 filePath.value = "";
             }
         } else if (!filePath.value) {
-            document.getElementById("noFileDialog").showModal();
+            showDialog(4);
             return;
         }
     
@@ -104,16 +104,16 @@ function initButtonPanel() {
 // is currently visible on the map. A loading dialog is shown while waiting
 // for Python to finish.
 async function getMapsImage() {
-    const mapsImageDialog = document.getElementById("mapsImageDialog");
+    const dialogs = document.getElementById("dialogs");
     const mapCenter = map.getCenter();
     const mapZoom = map.getZoom();
 
-    mapsImageDialog.showModal();
+   showDialog(2);
 
     try {
         await window.pywebview.api.get_maps_image(mapCenter, mapZoom);
     } finally {
-        mapsImageDialog.close();
+        dialogs.close();
     }
 }
 
@@ -121,7 +121,7 @@ async function getMapsImage() {
 // currently selected radio button. A loading dialog is shown while waiting
 // for Python to finish, followed by a success dialog.
 async function enhanceImage() {
-    const enhancingDialog = document.getElementById("enhancingDialog");
+    const dialogs = document.getElementById("dialogs");
     const radioButton = selectedRadioButton.getAttribute("id")
     let enhanceLevel;
 
@@ -133,9 +133,9 @@ async function enhanceImage() {
         enhanceLevel = 4;
     }
 
-    enhancingDialog.showModal();
+    showDialog(3);
     await window.pywebview.api.enhance_image(enhanceLevel);
-    enhancingDialog.close();
+    dialogs.close();
     successDialog.showModal();
 }
 
@@ -278,14 +278,43 @@ function updateCurrentFile(file) {
     filePath.value = file;
 }
 
-// This function is called by Python whenever it receives more than one file 
-// through drag and drop so the user knows what went wrong.
-function showTooManyFilesDialog() {
-    document.getElementById("tooManyFilesDialog").showModal();
-}
+function showDialog(dialogType) {
+    let dialogParagraph;
 
-// This function is called by Python whenever it receives a file through
-// drag and drop that is not an image file so the user knows what went wrong.
-function showWrongFileTypeDialog() {
-    document.getElementById("wrongFileTypeDialog").showModal();
+    document.getElementById("saveImageButton").style.display = "none";
+    if(dialogType <= 3) {
+        document.getElementById("dialogClose").style.display = "none";
+    }
+    else {
+        document.getElementById("dialogClose").style.display = "block";
+    }
+    switch(dialogType) {
+        case 1:
+            dialogParagraph = "Connecting to Google Maps...";
+            break;
+        case 2:
+            dialogParagraph = "Getting image from Google Maps...";
+            break;
+        case 3:
+            dialogParagraph = "Enhancing image...";
+            break;
+        case 4: // No files
+            dialogParagraph = "A file must be selected before enhancing.";
+            break;
+        case 5: // Too many files
+            dialogParagraph = "Only one file may be selected at a time.";
+            break;
+        case 6: // Wrong file type
+            dialogParagraph = "File types other than images are not supported.";
+            break;
+        case 7:
+            dialogParagraph = "Could not connect to Google Maps.\nCheck your internet connection and try again.";
+            break;
+        case 8:
+            dialogParagraph = "Success! The image has been enhanced.";
+            document.getElementById("saveImageButton").style.display = "block";
+            break;
+    }
+    document.getElementById("paragraphDialog").innerHTML = dialogParagraph;
+    document.getElementById("dialogs").showModal();
 }

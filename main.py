@@ -112,14 +112,14 @@ def on_drop(event):
     if num_files == 0:
         return
     elif num_files > 1:
-        window.evaluate_js("showTooManyFilesDialog()")
+        window.evaluate_js("showDialog(5)")
         return
 
     file_info = dragged_files[0]
     file_type = file_info["type"]
 
     if file_type not in ["image/jpeg", "image/png"]:
-        window.evaluate_js("showWrongFileTypeDialog()")
+        window.evaluate_js("showDialog(6)")
         return
 
     file_path = dragged_files[0]["pywebviewFullPath"]
