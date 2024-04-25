@@ -13,4 +13,4 @@ pip install -r requirements.txt
 
 ## Acknowledgements
 
-This code is built on  [BasicSR](https://github.com/XPixelGroup/BasicSR).
+This code uses [DAT](https://github.com/zhengchen1999/DAT) as its algorithm for enhancing images.
