@@ -44,13 +44,13 @@ function initTabs() {
     
         // Loading of map is delayed until the first time we visit this tab
         if (!map) {
-            showDialog(1);
+            showDialog("loading", "Connecting to Google Maps...");
 
             try {
                 await initMap();
             } catch {
                 dialogs.close();
-                showDialog(7);
+                showDialog("popup", "Could not connect to Google Maps.");
                 return;
             }
         }
@@ -76,13 +76,13 @@ function initButtonPanel() {
             try {
                 await getMapsImage();
             } catch {
-                showDialog(7);
+                showDialog("popup", "Map image could not be retrieved.");
                 return;
             } finally {
                 filePath.value = "";
             }
         } else if (!filePath.value) {
-            showDialog(4);
+            showDialog("popup", "A file must be selected before enhancing.");
             return;
         }
     
@@ -108,7 +108,7 @@ async function getMapsImage() {
     const mapCenter = map.getCenter();
     const mapZoom = map.getZoom();
 
-   showDialog(2);
+   showDialog("loading", "Getting image from Google Maps...");
 
     try {
         await window.pywebview.api.get_maps_image(mapCenter, mapZoom);
@@ -133,36 +133,30 @@ async function enhanceImage() {
         enhanceLevel = 4;
     }
 
-    showDialog(3);
+    showDialog("loading", "Enhancing image...");
     await window.pywebview.api.enhance_image(enhanceLevel);
     dialogs.close();
-    successDialog.showModal();
+    showDialog("save", "Success! The image has been enhanced.");
 }
 
 // Adds functionality to buttons contained within dialogs, and prevents ESC
 // from being used to close dialogs.
 function initDialogs() {
-    const dialogs = document.querySelectorAll("dialog");
-
-    for (let dialog of dialogs) {
-        dialog.addEventListener("cancel", event => {
-            event.preventDefault();
-        });
-    }
-
+    const dialogs = document.getElementById("dialogs");
+    const dialogCloseButton = document.getElementById("dialogClose");
     const saveImageButton = document.getElementById("saveImageButton");
+
+    dialogs.addEventListener("cancel", event => {
+        event.preventDefault();
+    });
+
+    dialogCloseButton.addEventListener("click", event => {
+        event.target.parentNode.close();
+    });
 
     saveImageButton.addEventListener("click", async () => {
         await window.pywebview.api.save_image_file(filePath.value);
     });
-
-    const dialogCloseButtons = document.querySelectorAll("dialog button.dialogClose");
-
-    for (let button of dialogCloseButtons) {
-        button.addEventListener("click", () => {
-            button.parentNode.close();
-        })
-    }
 }
 
 // Adds functionality to the file select window that allows it to receive
@@ -272,49 +266,39 @@ async function initMap() {
     });
 }
 
+// Shows a dialog with the message provided and different behavior depending on
+// the type chosen. The different types work as follows...
+//
+// "loading": No buttons displayed, must be closed through code.
+// "popup": A single button is displayed that lets the user close the dialog.
+// "save": Special case displaying a dialog closing button and an image-saving
+//         button that lets the user save the previously enhanced image.
+function showDialog(dialogType, message) {
+    const dialogClose = document.getElementById("dialogClose");
+    const saveImageButton = document.getElementById("saveImageButton");
+
+    switch (dialogType) {
+        case "loading":
+            dialogClose.style.display = "none";
+            saveImageButton.style.display = "none";
+            break;
+        case "popup":
+            dialogClose.style.display = "inline";
+            dialogClose.textContent = "OK";
+            saveImageButton.style.display = "none";
+            break;
+        case "save":
+            dialogClose.style.display = "inline";
+            dialogClose.textContent = "Exit";
+            saveImageButton.style.display = "inline";
+    }
+
+    document.getElementById("dialogMessage").textContent = message;
+    document.getElementById("dialogs").showModal();
+}
+
 // This function is called by Python whenever it receives a new image file
 // so that the file name can be displayed in the GUI.
 function updateCurrentFile(file) {
     filePath.value = file;
-}
-
-function showDialog(dialogType) {
-    let dialogParagraph;
-
-    document.getElementById("saveImageButton").style.display = "none";
-    if(dialogType <= 3) {
-        document.getElementById("dialogClose").style.display = "none";
-    }
-    else {
-        document.getElementById("dialogClose").style.display = "block";
-    }
-    switch(dialogType) {
-        case 1:
-            dialogParagraph = "Connecting to Google Maps...";
-            break;
-        case 2:
-            dialogParagraph = "Getting image from Google Maps...";
-            break;
-        case 3:
-            dialogParagraph = "Enhancing image...";
-            break;
-        case 4: // No files
-            dialogParagraph = "A file must be selected before enhancing.";
-            break;
-        case 5: // Too many files
-            dialogParagraph = "Only one file may be selected at a time.";
-            break;
-        case 6: // Wrong file type
-            dialogParagraph = "File types other than images are not supported.";
-            break;
-        case 7:
-            dialogParagraph = "Could not connect to Google Maps.\nCheck your internet connection and try again.";
-            break;
-        case 8:
-            dialogParagraph = "Success! The image has been enhanced.";
-            document.getElementById("saveImageButton").style.display = "block";
-            break;
-    }
-    document.getElementById("paragraphDialog").innerHTML = dialogParagraph;
-    document.getElementById("dialogs").showModal();
 }

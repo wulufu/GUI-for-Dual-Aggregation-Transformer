@@ -14,6 +14,8 @@ TEMP_PATH = "temp"
 INPUT_PATH = f"{TEMP_PATH}/in"
 OUTPUT_PATH = f"{TEMP_PATH}/out"
 DEFAULT_IMG_NAME = "img.png"
+TOO_MANY_FILES_MSG = "Only one file may be selected at a time."
+WRONG_FILE_TYPE_MSG = "File types other than images are not supported."
 
 
 # Contains methods that can be called from JavaScript
@@ -111,14 +113,14 @@ def on_drop(event):
     if num_files == 0:
         return
     elif num_files > 1:
-        window.evaluate_js("showDialog(5)")
+        window.evaluate_js(rf'showDialog("popup", "{TOO_MANY_FILES_MSG}")')
         return
 
     file_info = dragged_files[0]
     file_type = file_info["type"]
 
     if file_type not in ["image/jpeg", "image/png"]:
-        window.evaluate_js("showDialog(6)")
+        window.evaluate_js(rf'showDialog("popup", "{WRONG_FILE_TYPE_MSG}")')
         return
 
     file_path = dragged_files[0]["pywebviewFullPath"]
