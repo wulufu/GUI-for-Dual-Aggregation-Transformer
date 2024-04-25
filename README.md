@@ -7,7 +7,7 @@
 - NVIDIA GPU + [CUDA](https://developer.nvidia.com/cuda-downloads) (recommended)
 
 ```bash
-git clone https://github.com/JusticeKylar/Dual-Aggregation-Transformer-for-Satellite-Image-Super-Resolution
+git clone https://github.com/wulufu/DAT-Image-Enhancer/
 pip install -r requirements.txt
 ```
 
