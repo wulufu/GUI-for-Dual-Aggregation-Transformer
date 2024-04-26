@@ -2,9 +2,9 @@
 
 ## Dependencies
 
-- Python 3.8
-- PyTorch 1.8.0
-- NVIDIA GPU + [CUDA](https://developer.nvidia.com/cuda-downloads) (recommended)
+- Python >= 3.8
+- PyTorch >= 1.8.0
+- NVIDIA GPU (recommended)
 
 ```bash
 git clone https://github.com/wulufu/DAT-Image-Enhancer/
