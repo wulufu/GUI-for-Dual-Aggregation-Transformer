@@ -1,11 +1,123 @@
 import torch
+from copy import deepcopy
+from torch.nn.parallel import DataParallel, DistributedDataParallel
+from collections import OrderedDict
 
-from basicsr.utils.registry import MODEL_REGISTRY
-from basicsr.models.sr_model import SRModel
+from dat.dat_arch import DAT
+from dat.img_util import tensor2img
+
+MODEL_PATH = "models/DAT_x{}.pth"
 
 
-@MODEL_REGISTRY.register()
-class DATModel(SRModel):
+class DATModel:
+    def __init__(self, scale):
+        self.scale = scale
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+        # define network
+        self.net_g = DAT(upscale=self.scale)
+        self.net_g = self.model_to_device(self.net_g)
+
+        # load pretrained models
+        load_path = MODEL_PATH.format(scale)
+        self.load_network(self.net_g, load_path)
+
+    def model_to_device(self, net):
+        """Model to device.
+
+        Args:
+            net (nn.Module)
+        """
+        net = net.to(self.device)
+        return net
+
+    def load_network(self, net, load_path, strict=True, param_key='params'):
+        """Load network.
+
+        Args:
+            load_path (str): The path of networks to be loaded.
+            net (nn.Module): Network.
+            strict (bool): Whether strictly loaded.
+            param_key (str): The parameter key of loaded network. If set to
+                None, use the root 'path'.
+                Default: 'params'.
+        """
+        net = self.get_bare_model(net)
+        load_net = torch.load(load_path,
+                              map_location=lambda storage, loc: storage)
+        if param_key is not None:
+            if param_key not in load_net and 'params' in load_net:
+                param_key = 'params'
+            load_net = load_net[param_key]
+        # remove unnecessary 'module.'
+        for k, v in deepcopy(load_net).items():
+            if k.startswith('module.'):
+                load_net[k[7:]] = v
+                load_net.pop(k)
+        self._print_different_keys_loading(net, load_net, strict)
+        net.load_state_dict(load_net, strict)
+
+    def get_bare_model(self, net):
+        """Get bare model, especially under wrapping with
+        DistributedDataParallel or DataParallel.
+        """
+        if isinstance(net, (DataParallel, DistributedDataParallel)):
+            net = net.module
+        return net
+
+    def _print_different_keys_loading(self, crt_net, load_net, strict=True):
+        """Print keys with different name or different size when loading models.
+
+        1. Print keys with different names.
+        2. If strict=False, print the same key but with different tensor size.
+            It also ignores these keys with different sizes (not load).
+
+        Args:
+            crt_net (torch model): Current network.
+            load_net (dict): Loaded network.
+            strict (bool): Whether strictly loaded. Default: True.
+        """
+        crt_net = self.get_bare_model(crt_net)
+        crt_net = crt_net.state_dict()
+        crt_net_keys = set(crt_net.keys())
+        load_net_keys = set(load_net.keys())
+
+        # check the size for the same keys
+        if not strict:
+            common_keys = crt_net_keys & load_net_keys
+            for k in common_keys:
+                if crt_net[k].size() != load_net[k].size():
+                    load_net[k + '.ignore'] = load_net.pop(k)
+
+    def validation(self, dataloader):
+        """Validation function.
+
+        Args:
+            dataloader (torch.utils.data.DataLoader): Validation dataloader.
+        """
+        val_data = next(iter(dataloader))
+        self.feed_data(val_data)
+        self.test()
+
+        visuals = self.get_current_visuals()
+        sr_img = tensor2img([visuals['result']])
+
+        # tentative for out of GPU memory
+        del self.lq
+        del self.output
+        torch.cuda.empty_cache()
+
+        return sr_img
+
+    def feed_data(self, data):
+        self.lq = data.to(self.device)
+
+    def get_current_visuals(self):
+        out_dict = OrderedDict()
+        out_dict['lq'] = self.lq.detach().cpu()
+        out_dict['result'] = self.output.detach().cpu()
+        return out_dict
+
     def test(self):
         _, C, h, w = self.lq.size()
         split_token_h = h // 200 + 1  # number of horizontal cut sections
@@ -34,7 +146,7 @@ class DATModel(SRModel):
         # overlapping
         shave_h = 16
         shave_w = 16
-        scale = self.opt.get('scale', 1)
+        scale = self.scale
         ral = H // split_h
         row = W // split_w
         slices = []  # list of partition borders

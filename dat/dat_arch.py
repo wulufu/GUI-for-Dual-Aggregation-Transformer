@@ -10,8 +10,6 @@ from einops import rearrange
 import math
 import numpy as np
 
-from basicsr.utils.registry import ARCH_REGISTRY
-
 
 def img2windows(img, H_sp, W_sp):
     """
@@ -697,14 +695,13 @@ class UpsampleOneStep(nn.Sequential):
         return flops
 
 
-@ARCH_REGISTRY.register()
 class DAT(nn.Module):
     """ Dual Aggregation Transformer
     Args:
         img_size (int): Input image size. Default: 64
         in_chans (int): Number of input image channels. Default: 3
         embed_dim (int): Patch embedding dimension. Default: 180
-        depths (tuple(int)): Depth of each residual group (number of DATB in each RG).
+        depth (tuple(int)): Depth of each residual group (number of DATB in each RG).
         split_size (tuple(int)): Height and Width of spatial window.
         num_heads (tuple(int)): Number of attention heads in different residual groups.
         expansion_factor (float): Ratio of ffn hidden dim to embedding dim. Default: 4
@@ -724,9 +721,9 @@ class DAT(nn.Module):
                 img_size=64,
                 in_chans=3,
                 embed_dim=180,
-                split_size=[2,4],
-                depth=[2,2,2,2],
-                num_heads=[2,2,2,2],
+                split_size=[8,32],
+                depth=[6,6,6,6,6,6],
+                num_heads=[6,6,6,6,6,6],
                 expansion_factor=4.,
                 qkv_bias=True,
                 qk_scale=None,
@@ -739,8 +736,7 @@ class DAT(nn.Module):
                 upscale=2,
                 img_range=1.,
                 resi_connection='1conv',
-                upsampler='pixelshuffle',
-                **kwargs):
+                upsampler='pixelshuffle'):
         super().__init__()
 
         num_in_ch = in_chans
@@ -859,28 +855,3 @@ class DAT(nn.Module):
 
         x = x / self.img_range + self.mean
         return x
-
-
-if __name__ == '__main__':
-    upscale = 1
-    height = 64
-    width = 64
-    model = DAT(
-        upscale=2,
-        in_chans=3,
-        img_size=64,
-        img_range=1.,
-        depth=[6,6,6,6,6,6],
-        embed_dim=180,
-        num_heads=[6,6,6,6,6,6],
-        expansion_factor=2,
-        resi_connection='1conv',
-        split_size=[8,16],
-                ).cuda().eval()
-
-    print(height, width)
-
-    x = torch.randn((1, 3, height, width)).cuda()
-    x = model(x)
-
-    print(x.shape)

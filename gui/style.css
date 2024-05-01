@@ -233,6 +233,7 @@ dialog {
     color: greenyellow;
 
     border-radius: 10px;
+    max-width: 60%;
 
     font-size: x-large;
     outline: none;

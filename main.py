@@ -1,98 +1,110 @@
 import os
-import shutil
 
 import webview
-import googlemaps
-
-from basicsr.data import build_dataloader, build_dataset
-from basicsr.models import build_model
 from webview.dom import DOMEventHandler
+import googlemaps
+from googlemaps.exceptions import ApiError, TransportError, Timeout
+from torch.utils.data import DataLoader
 
-MODELS_PATH = "models"
-GUI_PATH = "gui"
-TEMP_PATH = "temp"
-INPUT_PATH = f"{TEMP_PATH}/in"
-OUTPUT_PATH = f"{TEMP_PATH}/out"
-DEFAULT_IMG_NAME = "img.png"
-TOO_MANY_FILES_MSG = "Only one file may be selected at a time."
-WRONG_FILE_TYPE_MSG = "File types other than images are not supported."
+from dat.dat_model import DATModel
+from dat.single_image_dataset import SingleImageDataset
+from dat.img_util import imwrite
 
 
 # Contains methods that can be called from JavaScript
 class Api:
-    MAP_SIZE = (640, 640)
-    MAP_SCALE = 2
-    MAP_FILE_TYPE = "png"
-    MAP_TYPE = "satellite"
     GMAPS_API_KEY = "AIzaSyAz7DIMRFMREUS1oea5JnwxDck_veuDqWI"
-    FILE_TYPES = ("Image Files (*.jpg;*.jpeg;*.png)",)
+    enhanced_image = None
 
-    options = {
-        "model_type": "DATModel",
-        "dataset": {"type": "SingleImageDataset", "dataroot_lq": INPUT_PATH},
-        "network_g": {
-            "type": "DAT", "in_chans": 3, "img_size": 64, "img_range": 1,
-            "split_size": [8, 32], "depth": [6, 6, 6, 6, 6, 6],
-            "embed_dim": 180, "num_heads": [6, 6, 6, 6, 6, 6],
-            "expansion_factor": 4, "resi_connection": '1conv'},
-        "path": {"visualization": OUTPUT_PATH}
-    }
+    # Gets the image at the file path provided and enhances it using DAT.
+    def enhance_image_file(self, file_path, enhance_level):
+        try:
+            with open(file_path, 'rb') as f:
+                img_bytes = f.read()
+        except OSError:
+            show_error_dialog("The selected image could not be accessed.")
 
-    # Enhances the image in the input folder using the scale provided.
-    def enhance_image(self, scale):
-        self.options["scale"] = scale
-        self.options["network_g"]["upscale"] = scale
-        self.options["path"]["pretrain_network_g"] = f"{MODELS_PATH}/DAT_x{scale}.pth"
+        self._enhance_image(img_bytes, enhance_level)
 
-        # create test dataset and dataloader
-        dataset_options = self.options["dataset"]
-        test_set = build_dataset(dataset_options)
-        test_loader = build_dataloader(test_set, dataset_options)
+    # Gets an image from the Google Maps API and enhances it using DAT.
+    def enhance_maps_image(self, map_center, map_zoom, enhance_level):
+        show_loading_dialog("Getting image from Google Maps...")
+        client = googlemaps.Client(self.GMAPS_API_KEY, timeout=10)
 
-        # create model
-        model = build_model(self.options)
-        reset_output_folder()
-        model.validation(test_loader)
-        reset_input_folder()
+        try:
+            img = client.static_map(size=(640, 640), center=map_center,
+                                    zoom=map_zoom, scale=2, maptype="satellite")
+        except (ApiError, TransportError, Timeout, ConnectionError):
+            show_error_dialog("Could not connect to Google Maps.")
+            return
 
-    # Gets an image from the Google Maps API and saves it to the image folder.
-    def get_maps_image(self, map_center, map_zoom):
-        gmaps_client = googlemaps.Client(self.GMAPS_API_KEY)
-        img = gmaps_client.static_map(self.MAP_SIZE, map_center, map_zoom,
-                                      self.MAP_SCALE, self.MAP_FILE_TYPE,
-                                      self.MAP_TYPE)
+        img_bytes = bytes(int.from_bytes(chunk) for chunk in img)
+        self._enhance_image(img_bytes, enhance_level)
 
-        reset_input_folder()
+    # Uses DAT to upscale an image stored as bytes by the scale provided.
+    def _enhance_image(self, img_bytes, scale):
+        show_loading_dialog("Enhancing image...")
 
-        with open(f"{INPUT_PATH}/{DEFAULT_IMG_NAME}", "wb") as file:
-            for chunk in img:
-                if chunk:
-                    file.write(chunk)
+        dataset = SingleImageDataset(img_bytes)
+        dataloader = DataLoader(dataset)
 
-    # Opens File Explorer, allowing the user to choose a single image file.
+        try:
+            model = DATModel(scale)
+        except FileNotFoundError:
+            show_error_dialog("Models required for image upscaling are missing or corrupt.")
+            return
+
+        self.enhanced_image = model.validation(dataloader)
+
+        show_save_dialog("Success! The image has been enhanced.")
+
+    # Opens File Explorer, allowing the user to choose a single image file,
+    # then updates the file path displayed in the GUI.
     def choose_image_file(self):
         selected_files = window.create_file_dialog(webview.OPEN_DIALOG,
-                                                   file_types=self.FILE_TYPES)
+                                                   file_types=("Image Files (*.jpg;*.jpeg;*.png)",))
 
         if selected_files is None:
             return
 
         file_path = selected_files[0]
-        get_image_file(file_path)
+        file_path = file_path.replace("\\", r"\\")
+        window.evaluate_js(f'updateCurrentFile("{file_path}")')
 
     # Opens File Explorer, allowing the user to save an enhanced image.
-    def save_image_file(self, file_name):
-        if not file_name:
-            file_name = DEFAULT_IMG_NAME
+    def save_enhanced_image(self, file_path):
+        if not file_path:
+            save_name = "img.png"
+        else:
+            file_name = os.path.basename(file_path)
+            save_name = os.path.splitext(file_name)[0] + ".png"
 
         save_location = window.create_file_dialog(webview.SAVE_DIALOG,
-                                                  save_filename=file_name,
+                                                  save_filename=save_name,
                                                   file_types=("Image File (*.png)",))
 
         if save_location is None:
             return
 
-        shutil.copyfile(f"{OUTPUT_PATH}/{file_name}", save_location)
+        try:
+            imwrite(self.enhanced_image, save_location, auto_mkdir=True)
+        except OSError:
+            show_error_dialog("Failed to save file to the selected location.")
+
+
+# Displays a loading dialog that can't be closed by the user.
+def show_loading_dialog(message):
+    window.evaluate_js(f'showDialog("loading", "{message}")')
+
+
+# Displays a dialog with an error message and a button to close it.
+def show_error_dialog(message):
+    window.evaluate_js(f'showDialog("popup", "{message}")')
+
+
+# Displays a dialog that allows the user to save an enhanced image.
+def show_save_dialog(message):
+    window.evaluate_js(f'showDialog("save", "{message}")')
 
 
 # Called when the window detects that the user has dropped a file. Determines
@@ -113,73 +125,29 @@ def on_drop(event):
     if num_files == 0:
         return
     elif num_files > 1:
-        window.evaluate_js(rf'showDialog("popup", "{TOO_MANY_FILES_MSG}")')
+        show_error_dialog("Only one file may be selected at a time.")
         return
 
     file_info = dragged_files[0]
     file_type = file_info["type"]
 
     if file_type not in ["image/jpeg", "image/png"]:
-        window.evaluate_js(rf'showDialog("popup", "{WRONG_FILE_TYPE_MSG}")')
+        show_error_dialog("File types other than images are not supported.")
         return
 
     file_path = dragged_files[0]["pywebviewFullPath"]
-    get_image_file(file_path)
-
-
-# Moves the file at file_path to the image folder used by DAT, then tells
-# JavaScript to update its current file with the new file name.
-def get_image_file(file_path):
-    file_name = os.path.basename(file_path)
-    reset_input_folder()
-
-    # Use a hard link if possible to save space
-    try:
-        os.link(file_path, f"{INPUT_PATH}/{file_name}")
-    except OSError:
-        shutil.copy(file_path, INPUT_PATH)
-
-    window.evaluate_js(f'updateCurrentFile("{file_name}")')
-
-
-# Removes all files in the input folder to prepare for the next input image.
-# The input folder will be created if it does not exist.
-def reset_input_folder():
-    if os.path.exists(INPUT_PATH):
-        shutil.rmtree(INPUT_PATH)
-
-    os.makedirs(INPUT_PATH)
-
-
-# Removes all files in the output folder to prepare for the next output image.
-# The output folder will be created if it does not exist.
-def reset_output_folder():
-    if os.path.exists(OUTPUT_PATH):
-        shutil.rmtree(OUTPUT_PATH)
-
-    os.makedirs(OUTPUT_PATH)
-
-
-# Removes all files in the output folder to prepare for the next output image.
-# The output folder will be created if it does not exist.
-def reset_image_folders():
-    reset_input_folder()
-    reset_output_folder()
+    file_path = file_path.replace("\\", r"\\")
+    window.evaluate_js(f'updateCurrentFile("{file_path}")')
 
 
 # Adds event listeners to the window that can't be handled within JavaScript.
 def bind_events():
     window.dom.document.events.drop += DOMEventHandler(on_drop, True, True)
-    window.events.loaded += reset_image_folders
-    window.events.closed += reset_image_folders
 
 
 if __name__ == '__main__':
-    window = webview.create_window(title="DAT Image Enhancer",
-                                   js_api=Api(),
-                                   url=f"{GUI_PATH}/layout.html",
-                                   width=834,
-                                   height=735,
-                                   resizable=False)
+    window = webview.create_window(title="DAT Image Enhancer", js_api=Api(),
+                                   url="gui/layout.html", width=834,
+                                   height=735, resizable=False)
     webview.settings['OPEN_DEVTOOLS_IN_DEBUG'] = False
     webview.start(bind_events, debug=True)

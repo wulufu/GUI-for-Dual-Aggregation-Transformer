@@ -4,6 +4,7 @@ const localImageTab = document.getElementById("localImageTab");
 const satelliteTab = document.getElementById("satelliteTab");
 const searchBox = document.getElementById("searchBox")
 const filePath = document.getElementById("filePath");
+const dialogs = document.getElementById("dialogs");
 const radioButtons = document.querySelectorAll(".radioButton");
 
 let selectedRadioButton = document.querySelector(".radioButton.selected");
@@ -39,8 +40,6 @@ function initTabs() {
         if (currentTab === satelliteTab) {
             return;
         }
-
-        const dialogs = document.getElementById("dialogs");
     
         // Loading of map is delayed until the first time we visit this tab
         if (!map) {
@@ -49,7 +48,6 @@ function initTabs() {
             try {
                 await initMap();
             } catch {
-                dialogs.close();
                 showDialog("popup", "Could not connect to Google Maps.");
                 return;
             }
@@ -73,20 +71,12 @@ function initButtonPanel() {
 
     enhanceButton.addEventListener("click", async () => {
         if (currentTab === satelliteTab) {
-            try {
-                await getMapsImage();
-            } catch {
-                showDialog("popup", "Map image could not be retrieved.");
-                return;
-            } finally {
-                filePath.value = "";
-            }
+            await enhanceMapsImage()
         } else if (!filePath.value) {
             showDialog("popup", "A file must be selected before enhancing.");
-            return;
+        } else {
+            await enhanceImageFile();
         }
-    
-        await enhanceImage();
     });
 
     for (let radioButton of radioButtons) {
@@ -101,48 +91,41 @@ function initButtonPanel() {
 }
 
 // Asks Python to get an image from the Google Maps API at the location that
-// is currently visible on the map. A loading dialog is shown while waiting
-// for Python to finish.
-async function getMapsImage() {
-    const dialogs = document.getElementById("dialogs");
+// is currently visible on the map and enhance it using DAT. Loading dialogs
+// are shown while waiting, and a save dialog is shown when finished. Errors
+// that occur are handled in Python.
+async function enhanceMapsImage() {
+    const enhanceLevel = getEnhanceLevel();
     const mapCenter = map.getCenter();
     const mapZoom = map.getZoom();
-
-   showDialog("loading", "Getting image from Google Maps...");
-
-    try {
-        await window.pywebview.api.get_maps_image(mapCenter, mapZoom);
-    } finally {
-        dialogs.close();
-    }
+    await window.pywebview.api.enhance_maps_image(mapCenter, mapZoom, enhanceLevel);
 }
 
-// Asks Python to activate DAT using the enhance level represented by the
-// currently selected radio button. A loading dialog is shown while waiting
-// for Python to finish, followed by a success dialog.
-async function enhanceImage() {
-    const dialogs = document.getElementById("dialogs");
-    const radioButton = selectedRadioButton.getAttribute("id")
-    let enhanceLevel;
+// Asks Python enhance the image located at the currently selected file path
+// using DAT. A loading dialog is shown while waiting, and a save dialog is
+// shown when finished. Errors that occur are handled in Python.
+async function enhanceImageFile() {
+    const enhanceLevel = getEnhanceLevel();
+    await window.pywebview.api.enhance_image_file(filePath.value, enhanceLevel);
+}
 
-    if (radioButton === "x2Button") {
-        enhanceLevel = 2;
-    } else if (radioButton === "x3Button") {
-        enhanceLevel = 3;
-    } else if (radioButton === "x4Button") {
-        enhanceLevel = 4;
+// Get the enhance level indicated by the currently selected radio button.
+function getEnhanceLevel() {
+    const radioButton = selectedRadioButton.getAttribute("id");
+
+    switch(radioButton) {
+        case "x2Button":
+            return 2;
+        case "x3Button":
+            return 3;
+        case "x4Button":
+            return 4;
     }
-
-    showDialog("loading", "Enhancing image...");
-    await window.pywebview.api.enhance_image(enhanceLevel);
-    dialogs.close();
-    showDialog("save", "Success! The image has been enhanced.");
 }
 
 // Adds functionality to buttons contained within dialogs, and prevents ESC
 // from being used to close dialogs.
 function initDialogs() {
-    const dialogs = document.getElementById("dialogs");
     const dialogCloseButton = document.getElementById("dialogClose");
     const saveImageButton = document.getElementById("saveImageButton");
 
@@ -155,7 +138,11 @@ function initDialogs() {
     });
 
     saveImageButton.addEventListener("click", async () => {
-        await window.pywebview.api.save_image_file(filePath.value);
+        if (currentTab === satelliteTab) {
+            await window.pywebview.api.save_enhanced_image();
+        } else {
+            await window.pywebview.api.save_enhanced_image(filePath.value);
+        }
     });
 }
 
@@ -204,6 +191,43 @@ function preventDefaultDragBehavior() {
         event.preventDefault();
         event.stopPropagation();
     });
+}
+
+// Shows a dialog with the message provided and different behavior depending on
+// the type chosen. The different types work as follows...
+//
+// "loading": No buttons displayed, can't be closed by the user.
+// "popup": A single button is displayed that lets the user close the dialog.
+// "save": Special case displaying a dialog closing button and an image-saving
+//         button that lets the user save the previously enhanced image.
+function showDialog(dialogType, message) {
+    const dialogClose = document.getElementById("dialogClose");
+    const saveImageButton = document.getElementById("saveImageButton");
+
+    switch (dialogType) {
+        case "loading":
+            dialogClose.style.display = "none";
+            saveImageButton.style.display = "none";
+            break;
+        case "popup":
+            dialogClose.style.display = "inline";
+            dialogClose.textContent = "OK";
+            saveImageButton.style.display = "none";
+            break;
+        case "save":
+            dialogClose.style.display = "inline";
+            dialogClose.textContent = "Close";
+            saveImageButton.style.display = "inline";
+    }
+
+    document.getElementById("dialogMessage").textContent = message;
+    dialogs.showModal();
+}
+
+// This function is called by Python whenever it receives a new image file
+// so that the file name can be displayed in the GUI.
+function updateCurrentFile(file) {
+    filePath.value = file;
 }
 
 // Connects to the Google Maps API to create an interactive map with a
@@ -264,41 +288,4 @@ async function initMap() {
     
         map.fitBounds(bounds);
     });
-}
-
-// Shows a dialog with the message provided and different behavior depending on
-// the type chosen. The different types work as follows...
-//
-// "loading": No buttons displayed, must be closed through code.
-// "popup": A single button is displayed that lets the user close the dialog.
-// "save": Special case displaying a dialog closing button and an image-saving
-//         button that lets the user save the previously enhanced image.
-function showDialog(dialogType, message) {
-    const dialogClose = document.getElementById("dialogClose");
-    const saveImageButton = document.getElementById("saveImageButton");
-
-    switch (dialogType) {
-        case "loading":
-            dialogClose.style.display = "none";
-            saveImageButton.style.display = "none";
-            break;
-        case "popup":
-            dialogClose.style.display = "inline";
-            dialogClose.textContent = "OK";
-            saveImageButton.style.display = "none";
-            break;
-        case "save":
-            dialogClose.style.display = "inline";
-            dialogClose.textContent = "Exit";
-            saveImageButton.style.display = "inline";
-    }
-
-    document.getElementById("dialogMessage").textContent = message;
-    document.getElementById("dialogs").showModal();
-}
-
-// This function is called by Python whenever it receives a new image file
-// so that the file name can be displayed in the GUI.
-function updateCurrentFile(file) {
-    filePath.value = file;
 }
