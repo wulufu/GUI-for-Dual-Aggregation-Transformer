@@ -139,7 +139,7 @@ function initDialogs() {
 
     saveImageButton.addEventListener("click", async () => {
         if (currentTab === satelliteTab) {
-            await window.pywebview.api.save_enhanced_image();
+            await window.pywebview.api.save_enhanced_image("map.png");
         } else {
             await window.pywebview.api.save_enhanced_image(filePath.value);
         }

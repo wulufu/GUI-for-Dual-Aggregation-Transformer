@@ -73,11 +73,8 @@ class Api:
 
     # Opens File Explorer, allowing the user to save an enhanced image.
     def save_enhanced_image(self, file_path):
-        if not file_path:
-            save_name = "img.png"
-        else:
-            file_name = os.path.basename(file_path)
-            save_name = os.path.splitext(file_name)[0] + ".png"
+        file_name = os.path.basename(file_path)
+        save_name = os.path.splitext(file_name)[0] + ".png"
 
         save_location = window.create_file_dialog(webview.SAVE_DIALOG,
                                                   save_filename=save_name,
