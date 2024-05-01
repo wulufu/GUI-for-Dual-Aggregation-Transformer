@@ -1,5 +1,5 @@
 html, body {
-    font-family: Roboto, serif;
+    font-family: Roboto;
 
     background-color: #1d262c;
     
@@ -142,16 +142,6 @@ html, body {
 
             display: none; /* Application opens to file select initially */
         }
-
-            #searchBox {
-                background-color: #1d262c;
-                color: white;
-
-                margin: 8px;
-                outline: none;
-                position: absolute; /* Fixes big search box on page load */
-                display: none; /* Application opens to file select initially */
-            }
 
             /* Dark mode for all map controls */
             button.gm-control-active {

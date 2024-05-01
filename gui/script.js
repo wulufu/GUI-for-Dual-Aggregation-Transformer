@@ -2,7 +2,6 @@
 
 const localImageTab = document.getElementById("localImageTab");
 const satelliteTab = document.getElementById("satelliteTab");
-const searchBox = document.getElementById("searchBox")
 const filePath = document.getElementById("filePath");
 const dialogs = document.getElementById("dialogs");
 const radioButtons = document.querySelectorAll(".radioButton");
@@ -29,7 +28,6 @@ function initTabs() {
     
         localImageTab.classList.add("selected");
         satelliteTab.classList.remove("selected");
-        searchBox.style.display = "none";
         map.getDiv().style.display = "none";
         fileSelect.style.display = "flex";
         currentTab = localImageTab;
@@ -57,7 +55,6 @@ function initTabs() {
         localImageTab.classList.remove("selected");
         fileSelect.style.display = "none";
         map.getDiv().style.display = "block";
-        searchBox.style.display = "block";
         currentTab = satelliteTab;
         dialogs.close();
     });
@@ -258,9 +255,12 @@ async function initMap() {
         keyboardShortcuts: false
     });
 
-    // The search box must be linked to the map's controls to appear properly
-    const search = new SearchBox(searchBox);
+    // Add custom controls to the map
+    const searchBox = createSearchBox();
     map.controls[ControlPosition.TOP_LEFT].push(searchBox);
+
+    // Add functionality to search box
+    const search = new SearchBox(searchBox);
 
     // The search box retrieves more details about predictions it displays
     search.addListener("places_changed", () => {
@@ -288,4 +288,16 @@ async function initMap() {
     
         map.fitBounds(bounds);
     });
+}
+
+// Create search box element to be used in map
+function createSearchBox() {
+    const searchBox = document.createElement("input");
+    searchBox.type = "text";
+    searchBox.placeholder = "Search for a place...";
+    searchBox.style.backgroundColor = "#1d262c";
+    searchBox.style.color = "white";
+    searchBox.style.margin = "8px";
+    searchBox.style.outline = "none";
+    return searchBox;
 }
