@@ -1,11 +1,11 @@
 import os
+from pickle import UnpicklingError
 
 import webview
 from webview.dom import DOMEventHandler
 import googlemaps
 from googlemaps.exceptions import ApiError, TransportError, Timeout
 from torch.utils.data import DataLoader
-from pickle import UnpicklingError
 
 from dat.dat_model import DATModel
 from dat.single_image_dataset import SingleImageDataset
@@ -18,12 +18,27 @@ class Api:
     enhanced_image = None
 
     # Gets the image at the file path provided and enhances it using DAT.
-    def enhance_image_file(self, file_path, enhance_level):
+    def enhance_image_file(self, file_path: str, enhance_level):
+        file_path = file_path.strip('\"')
+
+        if not os.path.exists(file_path):
+            show_error_dialog("The file does not exist.")
+            return
+
+        if not os.path.isabs(file_path):
+            show_error_dialog("An absolute file path must be provided.")
+            return
+
+        if os.path.isdir(file_path):
+            show_error_dialog("The file path must not point to a directory.")
+            return
+
         try:
             with open(file_path, 'rb') as f:
                 img_bytes = f.read()
         except OSError:
-            show_error_dialog("The selected file could not be accessed.")
+            show_error_dialog("The file could not be accessed.")
+            return
 
         self._enhance_image(img_bytes, enhance_level)
 
@@ -63,7 +78,7 @@ class Api:
         try:
             self.enhanced_image = model.validation(dataloader)
         except AttributeError:
-            show_error_dialog("The selected file is in an unsupported format.")
+            show_error_dialog("The file is in an unsupported format.")
             return
 
         show_save_dialog("Success! The image has been enhanced.")
@@ -100,6 +115,7 @@ class Api:
             imwrite(self.enhanced_image, save_location, auto_mkdir=True)
         except OSError:
             show_error_dialog("Failed to save file to the selected location.")
+            return
 
 
 # Displays a loading dialog that can't be closed by the user.
