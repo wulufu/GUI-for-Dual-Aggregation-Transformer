@@ -6,7 +6,7 @@
     </head>
     <body>
         <div id="tabs">
-            <button id="localImageTab" class="tab selected">Local Image</button>
+            <button id="fileSelectTab" class="tab selected">File Select</button>
             <button id="satelliteTab" class="tab">Satellite Image</button>
         </div>
         <div id="main">
@@ -18,7 +18,7 @@
                         <button id="chooseFileButton" class="fileDropAllowed">Choose File</button>
                     </div>
                     <div id="filePathWindow">
-                        <p>Selected Image File:</p>
+                        <p>Currently Selected File:</p>
                         <input type="text" id="filePath" placeholder="None" readonly/>
                     </div>
                 </div>
@@ -30,10 +30,10 @@
                 <button id="x4Button" class="radioButton">x4</button>
             </div>
         </div>
-        <dialog id="dialogs">
+        <dialog id="dialog">
             <p id="dialogMessage"></p>
             <button id="saveImageButton">Save Image</button>
-            <button id="dialogClose">OK</button>
+            <button id="closeButton">OK</button>
         </dialog>
     </body>
 </html>

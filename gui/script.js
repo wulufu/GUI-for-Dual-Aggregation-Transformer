@@ -1,36 +1,45 @@
 "use strict";
 
-const localImageTab = document.getElementById("localImageTab");
+const fileSelectTab = document.getElementById("fileSelectTab");
 const satelliteTab = document.getElementById("satelliteTab");
 const filePath = document.getElementById("filePath");
-const dialogs = document.getElementById("dialogs");
+const dialog = document.getElementById("dialog");
 const radioButtons = document.querySelectorAll(".radioButton");
 
 let selectedRadioButton = document.querySelector(".radioButton.selected");
 let currentTab = document.querySelector(".tab.selected");
+let python;
 let map;
 
+initPython();
 initTabs();
 initButtonPanel();
 initDialogs();
 initFileSelect();
+
+// Allows methods defined in Python to be called in JavaScript.
+function initPython() {
+    window.addEventListener("pywebviewready", () => {
+        python = window.pywebview.api;
+    });
+}
 
 // Adds functionality to tabs that allows for switching between the file
 // select window and satellite image window.
 function initTabs() {
     const fileSelect = document.getElementById("fileSelect");
 
-    localImageTab.addEventListener("click", () => {
+    fileSelectTab.addEventListener("click", () => {
         // No need to do anything if we are already on this tab
-        if (currentTab === localImageTab) {
+        if (currentTab === fileSelectTab) {
             return;
         }
     
-        localImageTab.classList.add("selected");
+        fileSelectTab.classList.add("selected");
         satelliteTab.classList.remove("selected");
         map.getDiv().style.display = "none";
         fileSelect.style.display = "flex";
-        currentTab = localImageTab;
+        currentTab = fileSelectTab;
     });
     
     satelliteTab.addEventListener("click", async () => {
@@ -52,16 +61,16 @@ function initTabs() {
         }
     
         satelliteTab.classList.add("selected");
-        localImageTab.classList.remove("selected");
+        fileSelectTab.classList.remove("selected");
         fileSelect.style.display = "none";
         map.getDiv().style.display = "block";
         currentTab = satelliteTab;
-        dialogs.close();
+        dialog.close();
     });
 }
 
 // Adds functionality to the buttons displayed next to the map or file select.
-// Enhance button activates DAT using the enhance level represented by the
+// The enhance button activates DAT using the enhance level represented by the
 // currently selected radio button.
 function initButtonPanel() {
     const enhanceButton = document.getElementById("enhanceButton");
@@ -88,14 +97,19 @@ function initButtonPanel() {
 }
 
 // Asks Python to get an image from the Google Maps API at the location that
-// is currently visible on the map and enhance it using DAT. Loading dialogs
-// are shown while waiting, and a save dialog is shown when finished. Errors
-// that occur are handled in Python.
+// is currently visible on the map and enhance it. Loading dialogs are shown
+// while waiting, and a save dialog is shown when finished. An error dialog
+// may be displayed if something goes wrong.
 async function enhanceMapsImage() {
     const enhanceLevel = getEnhanceLevel();
     const mapCenter = map.getCenter();
     const mapZoom = map.getZoom();
-    await window.pywebview.api.enhance_maps_image(mapCenter, mapZoom, enhanceLevel);
+
+    try {
+        await python.enhance_maps_image(mapCenter, mapZoom, enhanceLevel);
+    } catch (error) {
+        showDialog("popup", `An unexpected error has occurred. ${error}`);
+    }
 }
 
 // Asks Python enhance the image located at the currently selected file path
@@ -103,7 +117,12 @@ async function enhanceMapsImage() {
 // shown when finished. Errors that occur are handled in Python.
 async function enhanceImageFile() {
     const enhanceLevel = getEnhanceLevel();
-    await window.pywebview.api.enhance_image_file(filePath.value, enhanceLevel);
+
+    try {
+        await python.enhance_image_file(filePath.value, enhanceLevel);
+    } catch (error) {
+        showDialog("popup", `An unexpected error has occurred. ${error}`);
+    }
 }
 
 // Get the enhance level indicated by the currently selected radio button.
@@ -123,22 +142,26 @@ function getEnhanceLevel() {
 // Adds functionality to buttons contained within dialogs, and prevents ESC
 // from being used to close dialogs.
 function initDialogs() {
-    const dialogCloseButton = document.getElementById("dialogClose");
+    const closeButton = document.getElementById("closeButton");
     const saveImageButton = document.getElementById("saveImageButton");
 
-    dialogs.addEventListener("cancel", event => {
+    dialog.addEventListener("cancel", event => {
         event.preventDefault();
     });
 
-    dialogCloseButton.addEventListener("click", event => {
+    closeButton.addEventListener("click", event => {
         event.target.parentNode.close();
     });
 
     saveImageButton.addEventListener("click", async () => {
-        if (currentTab === satelliteTab) {
-            await window.pywebview.api.save_enhanced_image("map.png");
-        } else {
-            await window.pywebview.api.save_enhanced_image(filePath.value);
+        try {
+            if (currentTab === satelliteTab) {
+                await python.save_enhanced_image("map.png");
+            } else {
+                await python.save_enhanced_image(filePath.value);
+            }
+        } catch (error) {
+            showDialog("popup", `An unexpected error has occurred. ${error}`);
         }
     });
 }
@@ -151,15 +174,18 @@ function initFileSelect() {
     const chooseFileButton = document.getElementById("chooseFileButton");
     const fileDropElements = document.querySelectorAll(".fileDropAllowed")
 
-    // This button asks Python to open File Explorer and get an image file
+    // This button asks Python to open File Explorer and get an image file.
     chooseFileButton.addEventListener("click", async () => {
-        await window.pywebview.api.choose_image_file();
+        try {
+            await python.choose_image_file();
+        } catch (error) {
+            showDialog("popup", `An unexpected error has occurred. ${error}`);
+        }
     });
     
     let enterTarget;
 
-    // The event listeners below allow the file drop zone to visually react to
-    // files being dragged over it
+    // Allow the file drop zone to visually react to files dragged over it.
     for (let element of fileDropElements) {
         element.addEventListener("dragenter", event => {
             enterTarget = event.target;
@@ -198,39 +224,32 @@ function preventDefaultDragBehavior() {
 // "save": Special case displaying a dialog closing button and an image-saving
 //         button that lets the user save the previously enhanced image.
 function showDialog(dialogType, message) {
-    const dialogClose = document.getElementById("dialogClose");
+    const closeButton = document.getElementById("closeButton");
     const saveImageButton = document.getElementById("saveImageButton");
 
     switch (dialogType) {
         case "loading":
-            dialogClose.style.display = "none";
+            closeButton.style.display = "none";
             saveImageButton.style.display = "none";
             break;
         case "popup":
-            dialogClose.style.display = "inline";
-            dialogClose.textContent = "OK";
+            closeButton.style.display = "inline";
+            closeButton.textContent = "OK";
             saveImageButton.style.display = "none";
             break;
         case "save":
-            dialogClose.style.display = "inline";
-            dialogClose.textContent = "Close";
+            closeButton.style.display = "inline";
+            closeButton.textContent = "Close";
             saveImageButton.style.display = "inline";
     }
 
     document.getElementById("dialogMessage").textContent = message;
-    dialogs.showModal();
+    dialog.showModal();
 }
 
-// This function is called by Python whenever it receives a new image file
-// so that the file name can be displayed in the GUI.
-function updateCurrentFile(file) {
-    filePath.value = file;
-}
-
-// Connects to the Google Maps API to create an interactive map with a
-// functional search box (functionality added to existing elements).
+// Connects to the Google Maps API to create an interactive map with search.
 async function initMap() {
-    // Load the Maps JavaScript API dynamically
+    // Load the Maps JavaScript API dynamically.
     (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
         key: "AIzaSyAz7DIMRFMREUS1oea5JnwxDck_veuDqWI"
     });
@@ -240,6 +259,7 @@ async function initMap() {
     const {ControlPosition} = await google.maps.importLibrary("core")
     const {LatLngBounds} = await google.maps.importLibrary("core")
 
+    // Create the map object within existing div element.
     map = new Map(document.getElementById("map"), {
         center: {lat: 42.684, lng: -73.827},
         restriction: {
@@ -255,14 +275,14 @@ async function initMap() {
         keyboardShortcuts: false
     });
 
-    // Add custom controls to the map
+    // Add custom controls to the map.
     const searchBox = createSearchBox();
     map.controls[ControlPosition.TOP_LEFT].push(searchBox);
 
-    // Add functionality to search box
+    // Add functionality to search box.
     const search = new SearchBox(searchBox);
 
-    // The search box retrieves more details about predictions it displays
+    // The search box retrieves more details about predictions it displays.
     search.addListener("places_changed", () => {
         const places = search.getPlaces();
 
@@ -270,7 +290,7 @@ async function initMap() {
             return;
         }
 
-        // Get the actual location for each place
+        // Get the actual location for each place.
         const bounds = new LatLngBounds();
 
         places.forEach((place) => {
@@ -279,7 +299,7 @@ async function initMap() {
             }
 
             if (place.geometry.viewport) {
-                // Only geocodes have viewport
+                // Only geocodes have viewport.
                 bounds.union(place.geometry.viewport);
             } else {
                 bounds.extend(place.geometry.location);
@@ -290,7 +310,7 @@ async function initMap() {
     });
 }
 
-// Create search box element to be used in map
+// Create search box element to be used in map.
 function createSearchBox() {
     const searchBox = document.createElement("input");
     searchBox.type = "text";
@@ -300,4 +320,10 @@ function createSearchBox() {
     searchBox.style.margin = "8px";
     searchBox.style.outline = "none";
     return searchBox;
+}
+
+// This function is called by Python whenever the user chooses a new file so
+// that the file path can be displayed in the GUI.
+function updateCurrentFile(file) {
+    filePath.value = file;
 }
