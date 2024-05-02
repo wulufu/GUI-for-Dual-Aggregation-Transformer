@@ -1,4 +1,5 @@
-# Dual Aggregation Transformer for Image Super-Resolution
+# Dual Aggregation Transformer for Image Super-Resolution GUI
+This is a graphical user interface for the DAT for Image Super-Resolution algorithm, which we made for our Capstone Project.
 
 ## Dependencies
 
@@ -16,3 +17,5 @@ pip install -r requirements.txt
 ## Acknowledgements
 
 This code uses [DAT](https://github.com/zhengchen1999/DAT) as its algorithm for enhancing images.
+
+Our Capstone Project was supervised by [Professor Xin Li](https://www.linkedin.com/in/xin-li-709766b).
