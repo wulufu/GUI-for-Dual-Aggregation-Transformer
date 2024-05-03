@@ -3,8 +3,8 @@
 const fileSelectTab = document.getElementById("fileSelectTab");
 const satelliteTab = document.getElementById("satelliteTab");
 const filePath = document.getElementById("filePath");
-const mainDialog = document.getElementById("mainDialog");
 const radioButtons = document.querySelectorAll(".radioButton");
+const dialogs = document.querySelectorAll("dialog");
 
 let selectedRadioButton = document.querySelector(".radioButton.selected");
 let currentTab = document.querySelector(".tab.selected");
@@ -65,7 +65,7 @@ function initTabs() {
         fileSelect.style.display = "none";
         map.getDiv().style.display = "block";
         currentTab = satelliteTab;
-        mainDialog.close();
+        closeDialogs();
     });
 }
 
@@ -79,7 +79,7 @@ function initButtonPanel() {
         if (currentTab === satelliteTab) {
             await enhanceMapsImage()
         } else if (!filePath.value) {
-            showDialog("popup", "A file location must be chosen before enhancing.");
+            showDialog("popup", "A file location must be chosen.");
         } else {
             await enhanceImageFile();
         }
@@ -142,17 +142,21 @@ function getEnhanceLevel() {
 // Adds functionality to buttons contained within dialogs, and prevents ESC
 // from being used to close dialogs.
 function initDialogs() {
-    const closeButton = document.getElementById("closeButton");
     const saveImageButton = document.getElementById("saveImageButton");
+    const closeButtons = document.querySelectorAll(".dialogClose");
 
-    mainDialog.addEventListener("cancel", event => {
-        event.preventDefault();
-    });
+    for (let dialog of dialogs) {
+        dialog.addEventListener("cancel", event => {
+            event.preventDefault();
+        });
+    }
 
-    closeButton.addEventListener("click", event => {
-        event.target.parentNode.close();
-    });
-
+    for (let button of closeButtons) {
+        button.addEventListener("click", event => {
+            event.target.parentNode.close();
+        });
+    }
+    
     saveImageButton.addEventListener("click", async () => {
         try {
             if (currentTab === satelliteTab) {
@@ -224,27 +228,19 @@ function preventDefaultDragBehavior() {
 // "save": Special case displaying a dialog closing button and an image-saving
 //         button that lets the user save the previously enhanced image.
 function showDialog(dialogType, message) {
-    const closeButton = document.getElementById("closeButton");
-    const saveImageButton = document.getElementById("saveImageButton");
+    const id = `${dialogType}Dialog`;
+    const dialog = document.getElementById(id);
+    const dialogText = document.querySelector(`#${id} .dialogText`);
 
-    switch (dialogType) {
-        case "loading":
-            closeButton.style.display = "none";
-            saveImageButton.style.display = "none";
-            break;
-        case "popup":
-            closeButton.style.display = "inline";
-            closeButton.textContent = "OK";
-            saveImageButton.style.display = "none";
-            break;
-        case "save":
-            closeButton.style.display = "inline";
-            closeButton.textContent = "Close";
-            saveImageButton.style.display = "inline";
+    dialogText.textContent = message;
+    closeDialogs();
+    dialog.showModal();
+}
+
+function closeDialogs() {
+    for (let dialog of dialogs) {
+        dialog.close();
     }
-
-    document.getElementById("dialogMessage").textContent = message;
-    mainDialog.showModal();
 }
 
 // Connects to the Google Maps API to create an interactive map with search.
