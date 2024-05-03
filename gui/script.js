@@ -3,7 +3,7 @@
 const fileSelectTab = document.getElementById("fileSelectTab");
 const satelliteTab = document.getElementById("satelliteTab");
 const filePath = document.getElementById("filePath");
-const dialog = document.getElementById("dialog");
+const mainDialog = document.getElementById("mainDialog");
 const radioButtons = document.querySelectorAll(".radioButton");
 
 let selectedRadioButton = document.querySelector(".radioButton.selected");
@@ -65,7 +65,7 @@ function initTabs() {
         fileSelect.style.display = "none";
         map.getDiv().style.display = "block";
         currentTab = satelliteTab;
-        dialog.close();
+        mainDialog.close();
     });
 }
 
@@ -79,7 +79,7 @@ function initButtonPanel() {
         if (currentTab === satelliteTab) {
             await enhanceMapsImage()
         } else if (!filePath.value) {
-            showDialog("popup", "A file must be selected before enhancing.");
+            showDialog("popup", "A file location must be chosen before enhancing.");
         } else {
             await enhanceImageFile();
         }
@@ -145,7 +145,7 @@ function initDialogs() {
     const closeButton = document.getElementById("closeButton");
     const saveImageButton = document.getElementById("saveImageButton");
 
-    dialog.addEventListener("cancel", event => {
+    mainDialog.addEventListener("cancel", event => {
         event.preventDefault();
     });
 
@@ -244,7 +244,7 @@ function showDialog(dialogType, message) {
     }
 
     document.getElementById("dialogMessage").textContent = message;
-    dialog.showModal();
+    mainDialog.showModal();
 }
 
 // Connects to the Google Maps API to create an interactive map with search.
@@ -255,9 +255,7 @@ async function initMap() {
     });
 
     const {Map} = await google.maps.importLibrary("maps");
-    const {SearchBox} = await google.maps.importLibrary("places")
-    const {ControlPosition} = await google.maps.importLibrary("core")
-    const {LatLngBounds} = await google.maps.importLibrary("core")
+    const {ControlPosition} = await google.maps.importLibrary("core");
 
     // Create the map object within existing div element.
     map = new Map(document.getElementById("map"), {
@@ -269,16 +267,33 @@ async function initMap() {
         zoom: 15,
         tilt: 0,
         mapTypeId: "satellite",
+        zoomControl: true,
         mapTypeControl: false,
+        scaleControl: false,
         streetViewControl: false,
         rotateControl: false,
+        fullscreenControl: false,
         keyboardShortcuts: false
     });
 
     // Add custom controls to the map.
-    const searchBox = createSearchBox();
+    const searchBox = await createSearchBox();
+    const labelToggle = await createLabelToggle();
     map.controls[ControlPosition.TOP_LEFT].push(searchBox);
+    map.controls[ControlPosition.TOP_RIGHT].push(labelToggle);
+}
 
+// Create and give functionality to search box element used in map.
+async function createSearchBox() {
+    const searchBox = document.createElement("input");
+    searchBox.type = "text";
+    searchBox.placeholder = "Search for a place...";
+    searchBox.style.outline = "none";
+    searchBox.style.margin = "8px";
+
+    const {SearchBox} = await google.maps.importLibrary("places");
+    const {LatLngBounds} = await google.maps.importLibrary("core");
+    
     // Add functionality to search box.
     const search = new SearchBox(searchBox);
 
@@ -308,18 +323,26 @@ async function initMap() {
     
         map.fitBounds(bounds);
     });
+
+    return searchBox;
 }
 
-// Create search box element to be used in map.
-function createSearchBox() {
-    const searchBox = document.createElement("input");
-    searchBox.type = "text";
-    searchBox.placeholder = "Search for a place...";
-    searchBox.style.backgroundColor = "#1d262c";
-    searchBox.style.color = "white";
-    searchBox.style.margin = "8px";
-    searchBox.style.outline = "none";
-    return searchBox;
+// Create and give functionality to label toggle button used in map.
+async function createLabelToggle() {
+    const labelToggle = document.createElement("button");
+    labelToggle.textContent = "Toggle Labels"
+    labelToggle.style.color = "#666666";
+    labelToggle.style.margin = "8px";
+    
+    labelToggle.addEventListener("click", () => {
+        if (map.getMapTypeId() === "satellite") {
+            map.setMapTypeId("hybrid");
+        } else {
+            map.setMapTypeId("satellite");
+        }
+    });
+
+    return labelToggle;
 }
 
 // This function is called by Python whenever the user chooses a new file so

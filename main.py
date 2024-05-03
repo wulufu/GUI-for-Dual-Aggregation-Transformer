@@ -173,7 +173,7 @@ def bind_events():
 
 if __name__ == '__main__':
     window = webview.create_window(title="DAT Image Enhancer", js_api=Api(),
-                                   url="gui/layout.html", width=834,
-                                   height=735, resizable=False)
-    webview.settings['OPEN_DEVTOOLS_IN_DEBUG'] = False
+                                   url="gui/layout.html", width=832,
+                                   height=736, resizable=False)
+    webview.settings['OPEN_DEVTOOLS_IN_DEBUG'] = True
     webview.start(bind_events, debug=True)

@@ -1,12 +1,21 @@
-html, body {
-    font-family: Roboto;
+* {
+    --primary-bg-color: #1d262c;
+    --secondary-bg-color: #213039;
+    --tertiary-bg-color: #141e24;
+    --outline-color: #545454;
+    --highlight-color: greenyellow;
+    --main-text-color: wheat;
+}
 
-    background-color: #1d262c;
+html, body {
+    background-color: var(--primary-bg-color);
     
     height: 100%;
 
     display: flex;
     flex-direction: column;
+
+    font-family: Roboto;
 }
 
 #tabs {
@@ -14,27 +23,27 @@ html, body {
 }
 
     .tab {
-        background-color: #141e24;
-        color: wheat;
+        background-color: var(--tertiary-bg-color);
+        color: var(--main-text-color);
 
         position: relative;
         top: 1px;
         
-        border: 1px solid #545454;
+        border: 1px solid var(--outline-color);
         border-radius: 5px 5px 0 0;
 
-        height: 40px;
+        height: 41px;
         width: 150px;
 
         cursor: pointer;
         
         font-size: large;
-        text-wrap: none;
     }
 
         .tab.selected {
-            background-color: #213039;
+            background-color: var(--secondary-bg-color);
             border-bottom: none;
+            top: 1px;
         }
 
 #main {
@@ -42,13 +51,13 @@ html, body {
     width: 100%;
 
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
     #contentWindow {
-        background-color:#213039;
+        background-color: var(--secondary-bg-color);
         
-        border: 1px solid #545454;
+        border: 1px solid var(--outline-color);
         border-radius: 0 5px 5px 5px;
 
         display: flex;
@@ -60,7 +69,7 @@ html, body {
     }
 
         #fileSelect {
-            color: wheat;
+            color: var(--main-text-color);
             
             height: 100%;
             width: 100%;
@@ -74,18 +83,17 @@ html, body {
         }
 
             #fileSelect p {
-                margin: 10px;
+                margin: 8px;
             }
 
             #fileDropZone {
-                background-color: #1d262c;
+                background-color: var(--primary-bg-color);
                 
-                border: 2px dashed #545454;
+                border: 2px dashed var(--outline-color);
                 border-radius: 10px;
                 
                 height: 75%;
                 width: 90%;
-                max-width: 1000px;
 
                 display: flex;
                 flex-direction: column;
@@ -94,43 +102,43 @@ html, body {
             }
 
                 #fileDropZone.active {
-                    border-color: greenyellow;
+                    border-color: var(--highlight-color);
                 }
 
                     #chooseFileButton {
-                        color: greenyellow;
-                        background-color: #1d262c;
+                        color: var(--highlight-color);
+                        background-color: var(--tertiary-bg-color);
 
-                        border: 2px solid greenyellow;
+                        border: 2px solid var(--highlight-color);
                         border-radius: 5px;
 
                         height: 40px;
 
                         font-size: large;
+                        cursor: pointer;
                     }
 
                     #chooseFileButton:hover {
-                        background-color: #213039;
+                        background-color: var(--secondary-bg-color);
                     }
 
                 #filePathWindow {
-                    background-color: #1d262c;
+                    background-color: var(--primary-bg-color);
 
-                    border: 1px solid #545454;
+                    border: 1px solid var(--outline-color);
                     border-radius: 5px;
                     
                     width: 90%;
-                    max-width: 1000px;
 
                     display: flex;
                     flex-direction: column;
                 }
 
                     #filePath {
-                        background-color: #1d262c;
-                        color: wheat;
+                        background-color: var(--tertiary-bg-color);
+                        color: var(--main-text-color);
 
-                        border: 1px solid #545454;
+                        border: 1px solid var(--outline-color);
 
                         margin: 0 8px 8px 8px;
                         outline: none;
@@ -143,22 +151,9 @@ html, body {
             display: none; /* Application opens to file select initially */
         }
 
-            /* Dark mode for all map controls */
-            button.gm-control-active {
-                background-color: #1d262c !important;
-            }
-
-            /* Fixes white line between zoom controls */
-            .gmnoprint button + div {
-                background-color: #666666 !important;
-
-                width: 40px !important;
-                right: 5px !important;
-            }
-
             /* Changes background for grid lines and div before map load */
             .gm-style {
-                background-color: #1d262c !important;
+                background-color: var(--primary-bg-color) !important;
             }
 
             /* Removes the blue border seen when interacting with the map */
@@ -177,7 +172,7 @@ html, body {
     }
         
         #enhanceButton {
-            color: wheat;
+            color: var(--main-text-color);
             background-color: rgb(102, 165, 9);
 
             border-radius: 5px;
@@ -193,8 +188,8 @@ html, body {
         }
         
         .radioButton {
-            color: wheat;
-            background-color: #141e24;
+            color: var(--main-text-color);
+            background-color: var(--tertiary-bg-color);
 
             border: 15px outset black;
             border-radius: 50%;
@@ -202,7 +197,7 @@ html, body {
             min-height: 125px;
             min-width: 125px;
 
-            padding-left: 8px;
+            padding-left: 8px; /* Align text in center */
 
             cursor: pointer;
 
@@ -215,12 +210,12 @@ html, body {
             }
         
             .radioButton:hover {
-                background-color: #213039;
+                background-color: var(--secondary-bg-color);
             }
     
-dialog {
-    background-color: #213039;
-    color: greenyellow;
+#mainDialog {
+    background-color: var(--secondary-bg-color);
+    color: var(--highlight-color);
 
     border-radius: 10px;
     max-width: 60%;
@@ -229,19 +224,23 @@ dialog {
     outline: none;
 }
 
-    dialog::backdrop {
-        background-color: #1d262c;
-        opacity: 0.75;
+    #mainDialog::backdrop {
+        background-color: var(--primary-bg-color);
+        opacity: 0.85;
     }
 
-    dialog button {
-        color: greenyellow;
-        background-color: #1d262c;
+    #mainDialog button {
+        color: var(--highlight-color);
+        background-color: var(--tertiary-bg-color);
 
-        border: 2px solid greenyellow;
+        border: 2px solid var(--highlight-color);
         border-radius: 5px;
 
         cursor: pointer;
         font-size: large;
         outline: none;
+    }
+
+    #mainDialog button:hover {
+        background-color: var(--secondary-bg-color);
     }
