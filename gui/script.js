@@ -143,23 +143,21 @@ function getEnhanceLevel() {
     }
 }
 
-// Adds functionality to buttons contained within dialogs, and prevents ESC
-// from being used to close dialogs.
+// Adds functionality to dialogs and the buttons contained within them.
 function initDialogs() {
     const saveImageButton = document.getElementById("saveImageButton");
     const submitButton = document.getElementById("submitButton");
-    const closeButtons = document.querySelectorAll(".dialogClose");
 
     for (let dialog of dialogs) {
-        dialog.addEventListener("cancel", event => {
-            event.preventDefault();
+        dialog.addEventListener("focus", () => {
+            dialog.blur();
         });
-    }
 
-    for (let button of closeButtons) {
-        button.addEventListener("click", event => {
-            event.target.parentNode.close();
-        });
+        if (dialog.classList.contains("loading")) {
+            dialog.addEventListener("cancel", event => {
+                event.preventDefault();
+            });
+        }
     }
     
     saveImageButton.addEventListener("click", async () => {
@@ -244,8 +242,8 @@ function preventDefaultDragBehavior() {
     });
 }
 
-// Shows a dialog with the message provided and different behavior depending on
-// the type chosen. The different types work as follows...
+// Shows one dialog at a time with the message provided and different behavior
+// depending on the type chosen. The different types work as follows...
 //
 // "loading": No buttons displayed, can't be closed by the user.
 // "popup": A single button is displayed that lets the user close the dialog.
@@ -263,6 +261,7 @@ function showDialog(dialogType, message) {
     dialog.showModal();
 }
 
+// Close all open dialogs.
 function closeDialogs() {
     for (let dialog of dialogs) {
         dialog.close();
@@ -307,9 +306,7 @@ async function createSearchBox() {
     const searchBox = document.createElement("input");
     searchBox.type = "text";
     searchBox.placeholder = "Search for a place...";
-    searchBox.style.width ="50%"
-    searchBox.style.margin = "8px";
-    searchBox.style.outline = "none";
+    searchBox.classList.add("searchBox");
 
     const { SearchBox } = await google.maps.importLibrary("places");
     const { LatLngBounds } = await google.maps.importLibrary("core");
@@ -351,7 +348,7 @@ async function createSearchBox() {
 async function createLabelToggle() {
     const labelToggle = document.createElement("button");
     labelToggle.textContent = "Toggle Labels"
-    labelToggle.style.margin = "8px";
+    labelToggle.classList.add("labelToggle");
     
     labelToggle.addEventListener("click", () => {
         if (map.getMapTypeId() === "satellite") {

@@ -48,7 +48,7 @@ class Api:
             img = client.static_map(size=(640, 640), center=center, zoom=zoom,
                                     scale=2, maptype="satellite")
         except (ApiError, ValueError):
-            show_error_dialog("API key authentication failed.")
+            window.evaluate_js("gm_authFailure()")
             return
         except (TransportError, Timeout, ConnectionError):
             show_error_dialog("The satellite image could not be retrieved.")
@@ -169,5 +169,6 @@ def bind_events():
 if __name__ == '__main__':
     window = webview.create_window(title="DAT Image Enhancer", js_api=Api(),
                                    url="gui/layout.html", width=832,
-                                   height=736, resizable=False)
+                                   height=736, resizable=False,
+                                   background_color="#1d262c")
     webview.start(bind_events)

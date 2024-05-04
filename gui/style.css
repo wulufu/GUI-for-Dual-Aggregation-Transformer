@@ -5,6 +5,19 @@
     --outline-color: #545454;
     --highlight-color: greenyellow;
     --main-text-color: wheat;
+    --gmaps-bg-color: white;
+    --gmaps-outline-color: #666666;
+    --gmaps-text-color: #2f2f2f;
+}
+
+* {
+    font-family: Arial, sans-serif;
+    user-select: none;
+}
+
+:focus-visible {
+    outline: 1px solid white;
+    outline-offset: 1px;
 }
 
 html, body {
@@ -14,12 +27,11 @@ html, body {
 
     display: flex;
     flex-direction: column;
-
-    font-family: Roboto;
 }
 
 #tabs {
     display: flex;
+    gap: 8px;
 }
 
     .tab {
@@ -114,6 +126,7 @@ html, body {
                         border-radius: 5px;
 
                         height: 40px;
+                        margin: 8px 0 0 0;
 
                         font-size: large;
                         cursor: pointer;
@@ -140,9 +153,10 @@ html, body {
                         color: var(--main-text-color);
 
                         border: 1px solid var(--outline-color);
+                        border-radius: 2px;
+                        outline: none;
 
                         margin: 0 8px 8px 8px;
-                        outline: none;
                     }
 
         #mapDiv {
@@ -151,6 +165,42 @@ html, body {
 
             display: none; /* Application opens to file select initially */
         }
+
+            #mapDiv .searchBox {
+                background-color: var(--gmaps-bg-color);
+                color: var(--gmaps-text-color);
+                
+                border: solid var(--gmaps-bg-color);
+                border-radius: 2px;
+
+                width: 50%;
+                margin: 8px;
+                
+                font-family: Roboto, Arial, sans-serif;
+            }
+
+            #mapDiv .searchBox::placeholder {
+                color: var(--gmaps-outline-color);
+            }
+
+            #mapDiv .labelToggle {
+                background-color: var(--gmaps-bg-color);
+                color: var(--gmaps-outline-color);
+                
+                border: solid var(--gmaps-bg-color);
+                border-radius: 2px;
+                
+                margin: 8px;
+                
+                font-family: Roboto, Arial, sans-serif;
+                font-size: 16px;
+                
+                cursor: pointer;
+            }
+
+            #mapDiv .labelToggle:hover {
+                color: var(--gmaps-text-color);
+            }
 
             /* Changes background for grid lines and div before map load */
             .gm-style {
@@ -174,10 +224,10 @@ html, body {
         
         #enhanceButton {
             color: var(--main-text-color);
-            background-color: rgb(102, 165, 9);
+            background-color: rgb(100, 165, 10);
 
+            border: 7px outset black;
             border-radius: 5px;
-            border-width: 7px;
 
             min-height: 75px;
             min-width: 150px;
@@ -186,6 +236,10 @@ html, body {
             
             font-size: x-large;
             font-weight: bold;
+        }
+
+        #enhanceButton:hover {
+            background-color: rgb(100, 180, 10);
         }
         
         .radioButton {
@@ -222,7 +276,6 @@ dialog {
     max-width: 60%;
 
     font-size: x-large;
-    outline: none;
     overflow-wrap: break-word;
 }
 
@@ -240,7 +293,6 @@ dialog {
 
         cursor: pointer;
         font-size: large;
-        outline: none;
     }
 
     dialog button:hover {
@@ -252,6 +304,7 @@ dialog {
         color: var(--main-text-color);
 
         border: 1px solid var(--outline-color);
+        border-radius: 2px;
         outline: none;
 
         width: 100%;
@@ -264,6 +317,6 @@ dialog {
         margin: 12px auto 12px auto;
     }
 
-#loadingDialog {
+dialog.loading {
     cursor: wait;
 }

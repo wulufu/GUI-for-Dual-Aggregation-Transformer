@@ -30,23 +30,29 @@
                 <button id="x4Button" class="radioButton">x4</button>
             </div>
         </div>
-        <dialog id="loadingDialog">
+        <dialog id="loadingDialog" class="loading">
             <p class="dialogText"></p>
         </dialog>
         <dialog id="popupDialog">
-            <p class="dialogText"></p>
-            <button class="dialogClose">OK</button>
+            <form method="dialog">
+                <p class="dialogText"></p>
+                <button formmethod="dialog">OK</button>
+            </form>
         </dialog>
         <dialog id="saveDialog">
-            <p class="dialogText"></p>
-            <button id="saveImageButton">Save Image</button>
-            <button class="dialogClose">Exit</button>
+            <form method="dialog">
+                <p class="dialogText"></p>
+                <button type="button" id="saveImageButton">Save Image</button>
+                <button formmethod="dialog">Exit</button>
+            </form>
         </dialog>
         <dialog id="formDialog">
-            <p class="dialogText"></p>
-            <input type="text" id="apiKey" maxlength="39"/>
-            <button id="submitButton">Submit</button>
-            <button class="dialogClose">Cancel</button>
+            <form method="dialog">
+                <p class="dialogText"></p>
+                <input type="text" id="apiKey" maxlength="39"/>
+                <button formmethod="dialog" id="submitButton">Submit</button>
+                <button formmethod="dialog">Cancel</button>
+            </form>
         </dialog>
     </body>
 </html>
