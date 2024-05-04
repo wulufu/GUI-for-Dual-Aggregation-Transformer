@@ -14,11 +14,8 @@ from dat.img_util import imwrite
 
 # Contains methods that can be called from JavaScript
 class Api:
-    GMAPS_API_KEY = "AIzaSyAz7DIMRFMREUS1oea5JnwxDck_veuDqWI"
-    enhanced_image = None
-
     # Gets the image at the file path provided and enhances it using DAT.
-    def enhance_image_file(self, file_path: str, enhance_level):
+    def enhance_image_file(self, file_path, enhance_level):
         file_path = file_path.strip('\"')
 
         if not os.path.exists(file_path):
@@ -43,19 +40,17 @@ class Api:
         self._enhance_image(img_bytes, enhance_level)
 
     # Gets an image from the Google Maps API and enhances it using DAT.
-    def enhance_maps_image(self, center, zoom, enhance_level):
+    def enhance_maps_image(self, api_key, center, zoom, enhance_level):
         show_loading_dialog("Getting image from Google Maps...")
 
         try:
-            client = googlemaps.Client(self.GMAPS_API_KEY, timeout=10)
-        except ValueError:
-            show_error_dialog("An invalid API key was provided.")
-            return
-
-        try:
+            client = googlemaps.Client(api_key, timeout=10)
             img = client.static_map(size=(640, 640), center=center, zoom=zoom,
                                     scale=2, maptype="satellite")
-        except (ApiError, TransportError, Timeout, ConnectionError):
+        except (ApiError, ValueError):
+            show_error_dialog("API key authentication failed.")
+            return
+        except (TransportError, Timeout, ConnectionError):
             show_error_dialog("The satellite image could not be retrieved.")
             return
 
@@ -175,5 +170,4 @@ if __name__ == '__main__':
     window = webview.create_window(title="DAT Image Enhancer", js_api=Api(),
                                    url="gui/layout.html", width=832,
                                    height=736, resizable=False)
-    webview.settings['OPEN_DEVTOOLS_IN_DEBUG'] = True
-    webview.start(bind_events, debug=True)
+    webview.start(bind_events)

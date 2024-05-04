@@ -11,7 +11,7 @@
         </div>
         <div id="main">
             <div id="contentWindow">
-                <div id="map"></div>
+                <div id="mapDiv"></div>
                 <div id="fileSelect">
                     <div id="fileDropZone" class="fileDropAllowed">
                         <p class="fileDropAllowed">Drop an image file here or click below!</p>
@@ -41,6 +41,12 @@
             <p class="dialogText"></p>
             <button id="saveImageButton">Save Image</button>
             <button class="dialogClose">Exit</button>
+        </dialog>
+        <dialog id="formDialog">
+            <p class="dialogText"></p>
+            <input type="text" id="apiKey" maxlength="39"/>
+            <button id="submitButton">Submit</button>
+            <button class="dialogClose">Cancel</button>
         </dialog>
     </body>
 </html>

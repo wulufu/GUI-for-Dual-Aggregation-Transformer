@@ -1,4 +1,4 @@
-* {
+:root {
     --primary-bg-color: #1d262c;
     --secondary-bg-color: #213039;
     --tertiary-bg-color: #141e24;
@@ -38,6 +38,7 @@ html, body {
         cursor: pointer;
         
         font-size: large;
+        overflow: hidden;
     }
 
         .tab.selected {
@@ -144,7 +145,7 @@ html, body {
                         outline: none;
                     }
 
-        #map {
+        #mapDiv {
             height: 100%;
             width: 100%;
 
@@ -222,6 +223,7 @@ dialog {
 
     font-size: x-large;
     outline: none;
+    overflow-wrap: break-word;
 }
 
     dialog::backdrop {
@@ -243,6 +245,23 @@ dialog {
 
     dialog button:hover {
         background-color: var(--secondary-bg-color);
+    }
+
+    dialog input[type="text"] {
+        background-color: var(--tertiary-bg-color);
+        color: var(--main-text-color);
+
+        border: 1px solid var(--outline-color);
+        outline: none;
+
+        width: 100%;
+        margin: 0 0 16px 0;
+
+        display: inline-block;
+    }
+
+    dialog p {
+        margin: 12px auto 12px auto;
     }
 
 #loadingDialog {

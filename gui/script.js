@@ -2,7 +2,10 @@
 
 const fileSelectTab = document.getElementById("fileSelectTab");
 const satelliteTab = document.getElementById("satelliteTab");
+const fileSelect = document.getElementById("fileSelect");
+const mapDiv = document.getElementById("mapDiv");
 const filePath = document.getElementById("filePath");
+const apiKey = document.getElementById("apiKey");
 const radioButtons = document.querySelectorAll(".radioButton");
 const dialogs = document.querySelectorAll("dialog");
 
@@ -27,19 +30,13 @@ function initPython() {
 // Adds functionality to tabs that allows for switching between the file
 // select window and satellite image window.
 function initTabs() {
-    const fileSelect = document.getElementById("fileSelect");
-
     fileSelectTab.addEventListener("click", () => {
         // No need to do anything if we are already on this tab
         if (currentTab === fileSelectTab) {
             return;
         }
     
-        fileSelectTab.classList.add("selected");
-        satelliteTab.classList.remove("selected");
-        map.getDiv().style.display = "none";
-        fileSelect.style.display = "flex";
-        currentTab = fileSelectTab;
+        switchToFileSelect();
     });
     
     satelliteTab.addEventListener("click", async () => {
@@ -50,23 +47,29 @@ function initTabs() {
     
         // Loading of map is delayed until the first time we visit this tab
         if (!map) {
-            showDialog("loading", "Connecting to Google Maps...");
-
-            try {
-                await initMap();
-            } catch {
-                showDialog("popup", "Could not connect to Google Maps.");
-                return;
-            }
+            showDialog("form", "Enter your Google Maps API key:");
+        } else {
+            switchToSatellite();
         }
-    
-        satelliteTab.classList.add("selected");
-        fileSelectTab.classList.remove("selected");
-        fileSelect.style.display = "none";
-        map.getDiv().style.display = "block";
-        currentTab = satelliteTab;
-        closeDialogs();
     });
+}
+
+// Modify elements as necessary to switch to the file select tab.
+function switchToFileSelect() {
+    fileSelectTab.classList.add("selected");
+    satelliteTab.classList.remove("selected");
+    mapDiv.style.display = "none";
+    fileSelect.style.display = "flex";
+    currentTab = fileSelectTab;
+}
+
+// Modify elements as necessary to switch to the satellite tab.
+function switchToSatellite() {
+    satelliteTab.classList.add("selected");
+    fileSelectTab.classList.remove("selected");
+    fileSelect.style.display = "none";
+    mapDiv.style.display = "block";
+    currentTab = satelliteTab;
 }
 
 // Adds functionality to the buttons displayed next to the map or file select.
@@ -101,12 +104,13 @@ function initButtonPanel() {
 // while waiting, and a save dialog is shown when finished. An error dialog
 // may be displayed if something goes wrong.
 async function enhanceMapsImage() {
-    const enhanceLevel = getEnhanceLevel();
     const mapCenter = map.getCenter();
     const mapZoom = map.getZoom();
+    const enhanceLevel = getEnhanceLevel();
 
     try {
-        await python.enhance_maps_image(mapCenter, mapZoom, enhanceLevel);
+        await python.enhance_maps_image(apiKey.value, mapCenter,
+            mapZoom, enhanceLevel);
     } catch (error) {
         showDialog("popup", `An unexpected error has occurred. ${error}`);
     }
@@ -143,6 +147,7 @@ function getEnhanceLevel() {
 // from being used to close dialogs.
 function initDialogs() {
     const saveImageButton = document.getElementById("saveImageButton");
+    const submitButton = document.getElementById("submitButton");
     const closeButtons = document.querySelectorAll(".dialogClose");
 
     for (let dialog of dialogs) {
@@ -168,6 +173,25 @@ function initDialogs() {
             showDialog("popup", `An unexpected error has occurred. ${error}`);
         }
     });
+
+    submitButton.addEventListener("click", async () => {
+        if (apiKey.value.length != 39) {
+            showDialog("popup", "API key must be exactly 39 characters.")
+            return;
+        }
+
+        showDialog("loading", "Connecting to Google Maps...");
+
+        try {
+            await initMap(apiKey.value);
+        } catch {
+            showDialog("popup", "Could not connect to Google Maps.");
+            return;
+        }
+
+        switchToSatellite();
+        closeDialogs();
+    })
 }
 
 // Adds functionality to the file select window that allows it to receive
@@ -225,8 +249,10 @@ function preventDefaultDragBehavior() {
 //
 // "loading": No buttons displayed, can't be closed by the user.
 // "popup": A single button is displayed that lets the user close the dialog.
-// "save": Special case displaying a dialog closing button and an image-saving
-//         button that lets the user save the previously enhanced image.
+// "save": Two buttons are displayed, one saves the previously enhanced image,
+//         and the other closes the dialog.
+// "form": A text box and two buttons are displayed. One button submits the
+//         text written in the box, the other closes the dialog.
 function showDialog(dialogType, message) {
     const id = `${dialogType}Dialog`;
     const dialog = document.getElementById(id);
@@ -245,23 +271,15 @@ function closeDialogs() {
 
 // Connects to the Google Maps API to create an interactive map with search.
 async function initMap() {
-    // Load the Maps JavaScript API dynamically.
-    (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
-        key: "AIzaSyAz7DIMRFMREUS1oea5JnwxDck_veuDqWI"
-    });
+    // Load the Maps JavaScript API dynamically
+    (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({key:apiKey.value});
+    const { Map } = await google.maps.importLibrary("maps");
+    const { ControlPosition } = await google.maps.importLibrary("core");
 
-    const {Map} = await google.maps.importLibrary("maps");
-    const {ControlPosition} = await google.maps.importLibrary("core");
-
-    // Create the map object within existing div element.
-    map = new Map(document.getElementById("map"), {
-        center: {lat: 42.684, lng: -73.827},
-        restriction: {
-            latLngBounds: {north: 85, south: -85, west: -180, east: 180},
-            strictBounds: true,
-        }, 
-        zoom: 15,
+    // Create the map object within an existing div element
+    map = new Map(mapDiv, {
         tilt: 0,
+        zoom: 15,
         mapTypeId: "satellite",
         zoomControl: true,
         mapTypeControl: false,
@@ -269,10 +287,15 @@ async function initMap() {
         streetViewControl: false,
         rotateControl: false,
         fullscreenControl: false,
-        keyboardShortcuts: false
+        keyboardShortcuts: false,
+        center: { lat: 42.684, lng: -73.827 },
+        restriction: {
+            latLngBounds: { north: 85, south: -85, west: -180, east: 180 },
+            strictBounds: true,
+        }
     });
 
-    // Add custom controls to the map.
+    // Add custom controls to the map
     const searchBox = await createSearchBox();
     const labelToggle = await createLabelToggle();
     map.controls[ControlPosition.TOP_LEFT].push(searchBox);
@@ -284,16 +307,17 @@ async function createSearchBox() {
     const searchBox = document.createElement("input");
     searchBox.type = "text";
     searchBox.placeholder = "Search for a place...";
-    searchBox.style.outline = "none";
+    searchBox.style.width ="50%"
     searchBox.style.margin = "8px";
+    searchBox.style.outline = "none";
 
-    const {SearchBox} = await google.maps.importLibrary("places");
-    const {LatLngBounds} = await google.maps.importLibrary("core");
+    const { SearchBox } = await google.maps.importLibrary("places");
+    const { LatLngBounds } = await google.maps.importLibrary("core");
     
-    // Add functionality to search box.
+    // Add functionality to search box
     const search = new SearchBox(searchBox);
 
-    // The search box retrieves more details about predictions it displays.
+    // The search box retrieves more details about predictions it displays
     search.addListener("places_changed", () => {
         const places = search.getPlaces();
 
@@ -301,7 +325,7 @@ async function createSearchBox() {
             return;
         }
 
-        // Get the actual location for each place.
+        // Get the actual location for each place
         const bounds = new LatLngBounds();
 
         places.forEach((place) => {
@@ -310,7 +334,7 @@ async function createSearchBox() {
             }
 
             if (place.geometry.viewport) {
-                // Only geocodes have viewport.
+                // Only geocodes have viewport
                 bounds.union(place.geometry.viewport);
             } else {
                 bounds.extend(place.geometry.location);
@@ -327,7 +351,6 @@ async function createSearchBox() {
 async function createLabelToggle() {
     const labelToggle = document.createElement("button");
     labelToggle.textContent = "Toggle Labels"
-    labelToggle.style.color = "#666666";
     labelToggle.style.margin = "8px";
     
     labelToggle.addEventListener("click", () => {
@@ -345,4 +368,15 @@ async function createLabelToggle() {
 // that the file path can be displayed in the GUI.
 function updateCurrentFile(file) {
     filePath.value = file;
+}
+
+// This function is called by Google Maps when API key authentication fails.
+function gm_authFailure() {
+    fileSelectTab.classList.add("selected");
+    satelliteTab.classList.remove("selected");
+    mapDiv.style.display = "none";
+    fileSelect.style.display = "flex";
+    currentTab = fileSelectTab;
+    map = null; // Signal that map is not loaded
+    showDialog("popup", "API key authentication failed.");
 }
