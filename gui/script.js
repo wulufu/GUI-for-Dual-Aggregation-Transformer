@@ -143,11 +143,15 @@ function getEnhanceLevel() {
     }
 }
 
-// Adds functionality to dialogs and the buttons contained within them.
+// Adds functionality to dialogs and the buttons contained within them. The
+// image button allows the user to save the previously enhanced image to their
+// device. The submit button gets the API key entered by the user and attempts
+// to connect to Google Maps with it.
 function initDialogs() {
     const saveImageButton = document.getElementById("saveImageButton");
     const submitButton = document.getElementById("submitButton");
 
+    // Prevent focus on dialogs and pressing ESC to close loading dialogs
     for (let dialog of dialogs) {
         dialog.addEventListener("focus", () => {
             dialog.blur();
@@ -192,6 +196,32 @@ function initDialogs() {
     })
 }
 
+// Shows one dialog at a time with the message provided and different behavior
+// depending on the type chosen. The different types work as follows...
+//
+// "loading": No buttons displayed, can't be closed by the user.
+// "popup": A single button is displayed that lets the user close the dialog.
+// "save": Two buttons are displayed, one saves the previously enhanced image,
+//         and the other closes the dialog.
+// "form": A text box and two buttons are displayed. One button submits the
+//         text written in the box, the other closes the dialog.
+function showDialog(dialogType, message) {
+    const id = `${dialogType}Dialog`;
+    const dialog = document.getElementById(id);
+    const dialogText = document.querySelector(`#${id} .dialogText`);
+
+    dialogText.textContent = message;
+    closeDialogs();
+    dialog.showModal();
+}
+
+// Close all open dialogs at once.
+function closeDialogs() {
+    for (let dialog of dialogs) {
+        dialog.close();
+    }
+}
+
 // Adds functionality to the file select window that allows it to receive
 // files, either through drag and drop or File Explorer. Python handles
 // getting these files and their full paths.
@@ -200,7 +230,7 @@ function initFileSelect() {
     const chooseFileButton = document.getElementById("chooseFileButton");
     const fileDropElements = document.querySelectorAll(".fileDropAllowed")
 
-    // This button asks Python to open File Explorer and get an image file.
+    // This button asks Python to open File Explorer and get an image file
     chooseFileButton.addEventListener("click", async () => {
         try {
             await python.choose_image_file();
@@ -211,7 +241,7 @@ function initFileSelect() {
     
     let enterTarget;
 
-    // Allow the file drop zone to visually react to files dragged over it.
+    // Allow the file drop zone to visually react to files dragged over it
     for (let element of fileDropElements) {
         element.addEventListener("dragenter", event => {
             enterTarget = event.target;
@@ -240,32 +270,6 @@ function preventDefaultDragBehavior() {
         event.preventDefault();
         event.stopPropagation();
     });
-}
-
-// Shows one dialog at a time with the message provided and different behavior
-// depending on the type chosen. The different types work as follows...
-//
-// "loading": No buttons displayed, can't be closed by the user.
-// "popup": A single button is displayed that lets the user close the dialog.
-// "save": Two buttons are displayed, one saves the previously enhanced image,
-//         and the other closes the dialog.
-// "form": A text box and two buttons are displayed. One button submits the
-//         text written in the box, the other closes the dialog.
-function showDialog(dialogType, message) {
-    const id = `${dialogType}Dialog`;
-    const dialog = document.getElementById(id);
-    const dialogText = document.querySelector(`#${id} .dialogText`);
-
-    dialogText.textContent = message;
-    closeDialogs();
-    dialog.showModal();
-}
-
-// Close all open dialogs.
-function closeDialogs() {
-    for (let dialog of dialogs) {
-        dialog.close();
-    }
 }
 
 // Connects to the Google Maps API to create an interactive map with search.
