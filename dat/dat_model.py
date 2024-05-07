@@ -1,12 +1,14 @@
-import torch
-from copy import deepcopy
-from torch.nn.parallel import DataParallel, DistributedDataParallel
 from collections import OrderedDict
+from copy import deepcopy
+import os
+
+import torch
+from torch.nn.parallel import DataParallel, DistributedDataParallel
 
 from dat.dat_arch import DAT
 from dat.img_util import tensor2img
 
-MODEL_PATH = "models/DAT_x{}.pth"
+MODEL_PATH = os.sep.join(["models", "DAT_x{}.pth"])
 
 
 class DATModel:

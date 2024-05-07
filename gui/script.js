@@ -1,18 +1,7 @@
 "use strict";
 
-const fileSelectTab = document.getElementById("fileSelectTab");
-const satelliteTab = document.getElementById("satelliteTab");
-const fileSelect = document.getElementById("fileSelect");
-const mapDiv = document.getElementById("mapDiv");
-const filePath = document.getElementById("filePath");
-const apiKey = document.getElementById("apiKey");
-const radioButtons = document.querySelectorAll(".radioButton");
-const dialogs = document.querySelectorAll("dialog");
-
-let selectedRadioButton = document.querySelector(".radioButton.selected");
-let currentTab = document.querySelector(".tab.selected");
-let python;
-let map;
+let python; // Used to call methods from Python
+let map; // Stores map object when Google Maps API loads
 
 initPython();
 initTabs();
@@ -30,7 +19,12 @@ function initPython() {
 // Adds functionality to tabs that allows for switching between the file
 // select window and satellite image window.
 function initTabs() {
+    const fileSelectTab = document.getElementById("fileSelectTab");
+    const satelliteTab = document.getElementById("satelliteTab");
+
     fileSelectTab.addEventListener("click", () => {
+        const currentTab = document.querySelector(".tab.selected");
+
         // No need to do anything if we are already on this tab
         if (currentTab === fileSelectTab) {
             return;
@@ -40,6 +34,8 @@ function initTabs() {
     });
     
     satelliteTab.addEventListener("click", async () => {
+        const currentTab = document.querySelector(".tab.selected");
+
         // No need to do anything if we are already on this tab
         if (currentTab === satelliteTab) {
             return;
@@ -56,20 +52,28 @@ function initTabs() {
 
 // Modify elements as necessary to switch to the file select tab.
 function switchToFileSelect() {
+    const fileSelectTab = document.getElementById("fileSelectTab");
+    const satelliteTab = document.getElementById("satelliteTab");
+    const fileSelect = document.getElementById("fileSelect");
+    const mapDiv = document.getElementById("mapDiv");
+
     fileSelectTab.classList.add("selected");
     satelliteTab.classList.remove("selected");
     mapDiv.style.display = "none";
     fileSelect.style.display = "flex";
-    currentTab = fileSelectTab;
 }
 
 // Modify elements as necessary to switch to the satellite tab.
 function switchToSatellite() {
+    const fileSelectTab = document.getElementById("fileSelectTab");
+    const satelliteTab = document.getElementById("satelliteTab");
+    const fileSelect = document.getElementById("fileSelect");
+    const mapDiv = document.getElementById("mapDiv");
+
     satelliteTab.classList.add("selected");
     fileSelectTab.classList.remove("selected");
     fileSelect.style.display = "none";
     mapDiv.style.display = "block";
-    currentTab = satelliteTab;
 }
 
 // Adds functionality to the buttons displayed next to the map or file select.
@@ -77,19 +81,28 @@ function switchToSatellite() {
 // currently selected radio button.
 function initButtonPanel() {
     const enhanceButton = document.getElementById("enhanceButton");
+    const filePath = document.getElementById("filePath");
+    const radioButtons = document.querySelectorAll(".radioButton");
 
     enhanceButton.addEventListener("click", async () => {
-        if (currentTab === satelliteTab) {
-            await enhanceMapsImage()
-        } else if (!filePath.value) {
-            showDialog("popup", "A file location must be chosen.");
-        } else {
-            await enhanceImageFile();
+        const fileSelectTab = document.getElementById("fileSelectTab");
+        const satelliteTab = document.getElementById("satelliteTab");
+        const currentTab = document.querySelector(".tab.selected");
+
+        if (currentTab === fileSelectTab) {
+            if (!filePath.value) {
+                showDialog("popup", "A file location must be chosen.");
+            } else {
+                await enhanceImageFile();
+            }
+        } else if (currentTab === satelliteTab) {
+            await enhanceMapsImage();
         }
     });
 
     for (let radioButton of radioButtons) {
         radioButton.addEventListener("click", event => {
+            const selectedRadioButton = document.querySelector(".radioButton.selected");
             const clickedRadioButton = event.target;
     
             selectedRadioButton.classList.remove("selected");
@@ -99,28 +112,12 @@ function initButtonPanel() {
     }
 }
 
-// Asks Python to get an image from the Google Maps API at the location that
-// is currently visible on the map and enhance it. Loading dialogs are shown
-// while waiting, and a save dialog is shown when finished. An error dialog
-// may be displayed if something goes wrong.
-async function enhanceMapsImage() {
-    const mapCenter = map.getCenter();
-    const mapZoom = map.getZoom();
-    const enhanceLevel = getEnhanceLevel();
-
-    try {
-        await python.enhance_maps_image(apiKey.value, mapCenter,
-            mapZoom, enhanceLevel);
-    } catch (error) {
-        showDialog("popup", `An unexpected error has occurred. ${error}`);
-    }
-}
-
 // Asks Python enhance the image located at the currently selected file path
 // using DAT. A loading dialog is shown while waiting, and a save dialog is
 // shown when finished. Errors that occur are handled in Python.
 async function enhanceImageFile() {
     const enhanceLevel = getEnhanceLevel();
+    const filePath = document.getElementById("filePath");
 
     try {
         await python.enhance_image_file(filePath.value, enhanceLevel);
@@ -129,11 +126,28 @@ async function enhanceImageFile() {
     }
 }
 
+// Asks Python to get an image from the Google Maps API at the location that
+// is currently visible on the map and enhance it. Loading dialogs are shown
+// while waiting, and a save dialog is shown when finished. An error dialog
+// may be displayed if something goes wrong.
+async function enhanceMapsImage() {
+    const apiKey = document.getElementById("apiKey");
+    const mapCenter = map.getCenter();
+    const mapZoom = map.getZoom();
+    const enhanceLevel = getEnhanceLevel();
+
+    try {
+        await python.enhance_maps_image(apiKey.value, mapCenter, mapZoom, enhanceLevel);
+    } catch (error) {
+        showDialog("popup", `An unexpected error has occurred. ${error}`);
+    }
+}
+
 // Get the enhance level indicated by the currently selected radio button.
 function getEnhanceLevel() {
-    const radioButton = selectedRadioButton.getAttribute("id");
+    const selectedRadioButton = document.querySelector(".radioButton.selected");
 
-    switch(radioButton) {
+    switch(selectedRadioButton.id) {
         case "x2Button":
             return 2;
         case "x3Button":
@@ -150,6 +164,7 @@ function getEnhanceLevel() {
 function initDialogs() {
     const saveImageButton = document.getElementById("saveImageButton");
     const submitButton = document.getElementById("submitButton");
+    const dialogs = document.querySelectorAll("dialog");
 
     // Prevent focus on dialogs and pressing ESC to close loading dialogs
     for (let dialog of dialogs) {
@@ -164,24 +179,37 @@ function initDialogs() {
         }
     }
     
+    // Save the previously enhanced image stored in Python
     saveImageButton.addEventListener("click", async () => {
+        const fileSelectTab = document.getElementById("fileSelectTab");
+        const satelliteTab = document.getElementById("satelliteTab");
+        const currentTab = document.querySelector(".tab.selected");
+        const filePath = document.getElementById("filePath");
+
         try {
-            if (currentTab === satelliteTab) {
-                await python.save_enhanced_image("map.png");
-            } else {
+            if (currentTab === fileSelectTab) {
                 await python.save_enhanced_image(filePath.value);
+            } else if (currentTab === satelliteTab) {
+                await python.save_enhanced_image("map.png");
             }
         } catch (error) {
             showDialog("popup", `An unexpected error has occurred. ${error}`);
         }
     });
 
+    // Get API key and authenticate before switching over to satellite tab
     submitButton.addEventListener("click", async () => {
-        if (apiKey.value.length != 39) {
+        const apiKey = document.getElementById("apiKey");
+
+        if (apiKey.value.trim().length === 0) {
+            showDialog("popup", "API key cannot be empty.")
+            return;
+        } else if (apiKey.value.length !== 39) {
             showDialog("popup", "API key must be exactly 39 characters.")
             return;
         }
 
+        closeAllDialogs()
         showDialog("loading", "Connecting to Google Maps...");
 
         try {
@@ -192,7 +220,7 @@ function initDialogs() {
         }
 
         switchToSatellite();
-        closeDialogs();
+        closeLoadingDialogs();
     })
 }
 
@@ -208,15 +236,26 @@ function initDialogs() {
 function showDialog(dialogType, message) {
     const id = `${dialogType}Dialog`;
     const dialog = document.getElementById(id);
-    const dialogText = document.querySelector(`#${id} .dialogText`);
+    const dialogMessage = document.querySelector(`#${id} .dialogText`);
 
-    dialogText.textContent = message;
-    closeDialogs();
+    dialogMessage.textContent = message;
+    closeLoadingDialogs(); // Loading dialog should always be replaced
     dialog.showModal();
 }
 
+// Close any open loading dialogs.
+function closeLoadingDialogs() {
+    const loadingDialogs = document.querySelectorAll("dialog.loading");
+    
+    for (let dialog of loadingDialogs) {
+        dialog.close();
+    }
+}
+
 // Close all open dialogs at once.
-function closeDialogs() {
+function closeAllDialogs() {
+    const dialogs = document.querySelectorAll("dialog");
+
     for (let dialog of dialogs) {
         dialog.close();
     }
@@ -274,6 +313,9 @@ function preventDefaultDragBehavior() {
 
 // Connects to the Google Maps API to create an interactive map with search.
 async function initMap() {
+    const mapDiv = document.getElementById("mapDiv");
+    const apiKey = document.getElementById("apiKey");
+
     // Load the Maps JavaScript API dynamically
     (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({key:apiKey.value});
     const { Map } = await google.maps.importLibrary("maps");
@@ -368,11 +410,16 @@ async function createLabelToggle() {
 // This function is called by Python whenever the user chooses a new file so
 // that the file path can be displayed in the GUI.
 function updateCurrentFile(file) {
+    const filePath = document.getElementById("filePath");
     filePath.value = file;
 }
 
 // This function is called by Google Maps when API key authentication fails.
 function gm_authFailure() {
+    const mapDiv = document.getElementById("mapDiv");
+    const fileSelectTab = document.getElementById("fileSelectTab");
+    const fileSelect = document.getElementById("fileSelect");
+
     fileSelectTab.classList.add("selected");
     satelliteTab.classList.remove("selected");
     mapDiv.style.display = "none";

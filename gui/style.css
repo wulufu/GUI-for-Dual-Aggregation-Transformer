@@ -175,8 +175,6 @@ html, body {
 
                 width: 50%;
                 margin: 8px;
-                
-                font-family: Roboto, Arial, sans-serif;
             }
 
             #mapDiv .searchBox::placeholder {
@@ -191,9 +189,6 @@ html, body {
                 border-radius: 2px;
                 
                 margin: 8px;
-                
-                font-family: Roboto, Arial, sans-serif;
-                font-size: 16px;
                 
                 cursor: pointer;
             }
@@ -281,7 +276,7 @@ dialog {
 
     dialog::backdrop {
         background-color: var(--primary-bg-color);
-        opacity: 0.85;
+        opacity: 0.95;
     }
 
     dialog button {

@@ -1,4 +1,4 @@
-import os
+from os import path
 from pickle import UnpicklingError
 
 import webview
@@ -7,9 +7,7 @@ import googlemaps
 from googlemaps.exceptions import ApiError, TransportError, Timeout
 from torch.utils.data import DataLoader
 
-from dat.dat_model import DATModel
-from dat.single_image_dataset import SingleImageDataset
-from dat.img_util import imwrite
+from dat import SingleImageDataset, DATModel, imwrite
 
 
 # Contains methods that can be called from JavaScript
@@ -18,15 +16,15 @@ class Api:
     def enhance_image_file(self, file_path, enhance_level):
         file_path = file_path.strip('\"')
 
-        if not os.path.exists(file_path):
-            show_error_dialog("The file does not exist.")
-            return
-
-        if not os.path.isabs(file_path):
+        if not path.isabs(file_path):
             show_error_dialog("An absolute file path must be provided.")
             return
 
-        if os.path.isdir(file_path):
+        if not path.exists(file_path):
+            show_error_dialog("The file at that location does not exist.")
+            return
+
+        if path.isdir(file_path):
             show_error_dialog("The file path must not point to a directory.")
             return
 
@@ -67,7 +65,7 @@ class Api:
         try:
             model = DATModel(scale)
         except (FileNotFoundError, UnpicklingError):
-            show_error_dialog("Required DAT models are missing or corrupt.")
+            show_error_dialog("Required DAT models are missing or corrupted.")
             return
 
         try:
@@ -96,8 +94,8 @@ class Api:
 
     # Opens File Explorer, allowing the user to save an enhanced image.
     def save_enhanced_image(self, file_path):
-        file_name = os.path.basename(file_path)
-        save_name = os.path.splitext(file_name)[0] + ".png"
+        file_name = path.basename(file_path)
+        save_name = path.splitext(file_name)[0] + ".png"
 
         save_location = window.create_file_dialog(webview.SAVE_DIALOG,
                                                   save_filename=save_name,
